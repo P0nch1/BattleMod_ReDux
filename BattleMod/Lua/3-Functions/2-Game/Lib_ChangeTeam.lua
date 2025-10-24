@@ -113,7 +113,14 @@ local function autobalance_team(team, amount)
 	local sorted = team
 
 	table.sort(sorted, function(p1, p2)
-		if not (p1 or p2) then return end
+		if not ((p1 and p1.valid) or (p2 and p2.valid)) then return end
+
+		-- Flagholders are exempt and won't be autobalanced
+		if p1.gotflag then
+			return true
+		elseif p2.gotflag then
+			return false
+		end
 
 		--// 1. Flag caps
 		if 	(gametype == GT_CTF or gametype == GT_BATTLECTF) and p1.flagscore == p2.flagscore then
@@ -170,8 +177,8 @@ B.Autobalance = function()
 	local redteam = {}
 	local bluteam = {}
 	for p in players.iterate do
-		--// Count players on red/blue. Ignores spectators and flag holders.
-		if not (p.spectator or p.gotflag) then
+		--// Count players on red/blue. Ignores spectators.
+		if not p.spectator then
 			if 		p.ctfteam == 1 then     -- RED
 				table.insert(redteam, p)
 			elseif 	p.ctfteam == 2 then -- BLUE
