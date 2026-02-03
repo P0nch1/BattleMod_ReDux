@@ -4,7 +4,7 @@ local B = CBW_Battle
 
 local refiretime = 28
 
-function B.newGunLook(player) 
+B.NewGunLook = function(player)
 	local twod = (twodlevel or player.mo.flags2 & MF2_TWOD)
 	local ringdist, span
 	if not(twod)
@@ -104,7 +104,7 @@ local function newGunslinger(player)
 		-- You naturally lose your speed via friction.
 		-- v10 EDIT: Now Fang automatically looks towards lockons
 
-		local lockon = B.newGunLook(player)
+		local lockon = B.NewGunLook(player)
 		if (lockon and lockon.valid)
 			player.drawangle = R_PointToAngle2(mo.x, mo.y, lockon.x, lockon.y)
 			P_SpawnLockOn(player, lockon, mobjinfo[MT_LOCKON].spawnstate)
