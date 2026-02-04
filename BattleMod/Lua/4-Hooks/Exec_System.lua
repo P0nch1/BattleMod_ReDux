@@ -6,8 +6,6 @@ local F = B.CTF
 local CV = B.Console
 local CP = B.ControlPoint
 local I = B.Item
-local C = B.Bank
-local CR = C.ChaosRing
 
 addHook("NetVars",B.NetVars.Sync)
 
@@ -95,7 +93,6 @@ addHook("ThinkFrame",function()
 	
 	B.ResetScore()
 	A.ResetScore()
-	C.ThinkFrame()
 	--F.DelayCapActivateIndicator()
 	--F.UpdateScore()
 end)

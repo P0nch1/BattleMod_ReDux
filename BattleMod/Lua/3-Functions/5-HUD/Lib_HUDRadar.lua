@@ -5,9 +5,7 @@ local R = B.Ruby
 local F = B.CTF
 local A = B.Arena
 local CP = B.ControlPoint
-local C = B.Bank
 local CV = CBW_Battle.Console
---local CR = C.ChaosRing
 
 B.clamp = function(num, minimum, maximum)
 	return min(maximum, max(num, minimum))
@@ -123,27 +121,26 @@ B.RadarHUD = function(v, player, cam)
 			float = true
 			allow_clamp = false
 		end
-		--Red Flag / Bank
+		--Red Flag
 		if r == 3
 			if not (
 				(F.RedFlag and F.RedFlag.valid and not(F.RedFlag.flags2 & MF2_DONTDRAW) and (F.RedFlag.state ~= S_RUBYPORTAL))
-				or (C.RedBank and C.RedBank.valid)
 			) then
 				continue
 			end
-			table.insert(t,F.RedFlag or C.RedBank)
+			table.insert(t,F.RedFlag)
 			fade = V_40TRANS
 			fade2 = V_60TRANS
 			local ringin = player.ctfteam == 1 and (player.gotmaxrings or player.gotcrystal)
-			if B.BankGametype() then
+			/*if B.BankGametype() then
 				patch_clamped = v.cachePatch("RAD_RING1")
 				patch = v.cachePatch("RAD_RING2")
 				if ringin then
 					patch = v.cachePatch("RAD_RINGIN1")
 				end
-			else
+			else*/
 				patch = v.cachePatch("RAD_FLAG")
-			end
+			--end
 			color = (ringin and leveltime%11<5) and SKINCOLOR_GOLDENROD or SKINCOLOR_RED
 			center = true
 		end
@@ -151,25 +148,24 @@ B.RadarHUD = function(v, player, cam)
 		if r == 4
 			if not (
 				(F.BlueFlag and F.BlueFlag.valid and not(F.BlueFlag.flags2 & MF2_DONTDRAW) and (F.BlueFlag.state ~= S_RUBYPORTAL))
-				or (C.BlueBank and C.BlueBank.valid)
 			) then
 				continue
 			end
-			table.insert(t,F.BlueFlag or C.BlueBank)
+			table.insert(t,F.BlueFlag)
 			fade = V_40TRANS
 			fade2 = V_60TRANS
 			local ringin = player.ctfteam == 2 and (player.gotmaxrings or player.gotcrystal)
 			flags = $|V_FLIP
-			if B.BankGametype() then
+			/*if B.BankGametype() then
 				patch_clamped = v.cachePatch("RAD_RING1")
 				patch = v.cachePatch("RAD_RING2")
 				if ringin then
 					patch = v.cachePatch("RAD_RINGIN1")
 					flags = $ & ~V_FLIP
 				end
-			else
+			else*/
 				patch = v.cachePatch("RAD_FLAG")
-			end
+			--end
 			color = (ringin and leveltime%11<5) and SKINCOLOR_SUPERGOLD2 or SKINCOLOR_BLUE
 			center = true
 		end

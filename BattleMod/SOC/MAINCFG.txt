@@ -370,7 +370,7 @@ Level G0
 LevelName = Metal Star
 Music = MP_MN2
 NextLevel = G1
-TypeOfLevel = CTF,rubyrun,bank
+TypeOfLevel = CTF,rubyrun
 SkyNum = 21
 SelectHeading = Classic
 
@@ -441,7 +441,7 @@ Levelname = Thunder Nimbus
 Music = NIMSTM
 SkyNum = 20
 Weather = PRECIP_STORM_NORAIN
-TypeOfLevel = rubyrun,bank
+TypeOfLevel = rubyrun
 Lua.Author = Smol
 SelectHeading = EXTRA
 Lua.BattleItems_GlobalRate = 55
@@ -477,24 +477,12 @@ Lua.BattleItems_GlobalRate = 55
 Lua.BattleItems_Roulette = 200
 Lua.BattleItems_LocalRate = 40
 
-#Chaos Control
-
-Level J1
-NextLevel = J2
-Levelname = Nimbus Garden
-SelectHeading = EXTRA
-Act = 0
-Music = MP_AIR
-TypeOfLevel = Bank
-SkyNum = 18
-Lua.Author = JABSphere94
-
 Level J2
 NextLevel = J3
 Levelname = Casino Night
 Music = S2CN
 SkyNum = 7771
-TypeOfLevel = BattleCTF,Bank
+TypeOfLevel = BattleCTF
 Lua.Author = Smol
 SelectHeading = EXTRA
 Lua.BattleItems_GlobalRate = 55

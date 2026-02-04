@@ -5,8 +5,6 @@ local I = B.Item
 local D = B.Diamond
 local R = B.Ruby
 local F = B.CTF
-local C = B.Bank
-local CR = C.ChaosRing
 
 function B.NetVars.Sync(network)
 	//Training Dummy / Tails Doll
@@ -75,11 +73,7 @@ function B.NetVars.Sync(network)
 	F.RedFlag_oldScore  = network($)
 	F.BlueFlag_player   = network($)
 	F.BlueFlag_oldScore = network($)
-	//Bank
-	C.RedBank 			= network($)
-	C.BlueBank 			= network($)
-	C.ScoreDelay 		= network($)
-	CR.CheckPoints		= network($)
+	
 	//Game state
 	B.RedScore		= network($)
 	B.BlueScore		= network($)

@@ -5,8 +5,6 @@ local D = B.Diamond
 local CP = B.ControlPoint
 local I = B.Item
 local S = B.SkinVars
-local C = B.Bank
-local CR = C.ChaosRing
 
 B.DebugHUD = function(v, player, cam)
 	local debug = CV.Debug.value
@@ -214,28 +212,6 @@ B.DebugHUD = function(v, player, cam)
 			end
 			if(D.ID and D.ID.valid) then
 				addline("Idle",(D.ID.idle))
-			end
-		end
-
-		if B.BankGametype() then
-			subheader("BANK")
-			addline("\x85".."RedBank".."\x80", C.RedBank != nil)
-			addline("\x85".."> RedBank.chaosrings_table".."\x80", (C.RedBank != nil) and C.RedBank.chaosrings_table and #C.RedBank.chaosrings_table)
-			addline("\x84".."BlueBank".."\x80", C.BlueBank != nil)
-			addline("\x84".."> BlueBank.chaosrings_table".."\x80", (C.BlueBank != nil) and C.BlueBank.chaosrings_table and #C.BlueBank.chaosrings_table)
-			addline("SpawnCountdown", server.SpawnCountDown)
-			addline("GlobalAngle", server.GlobalAngle/ANG1)
-			addline("InitSpawnWait", server.InitSpawnWait)
-			addline("SpawnTable", #server.SpawnTable)
-			addline("WinCountdown", server.WinCountdown)
-			--addline("LiveTable", #CR.LiveTable)
-			addline("AvailableChaosRings", #server.AvailableChaosRings)
-			for k, v in ipairs(server.AvailableChaosRings) do
-				addline(CR.Data[v.chaosring_num].textmap.."Chaos Ring ".."\x80"..k, (v~=nil and (v.valid or v.respawntimer)))
-				addline(CR.Data[v.chaosring_num].textmap.."> Fuse ".."\x80"..k, (v~=nil and (v.valid and v.fuse)))
-				addline(CR.Data[v.chaosring_num].textmap.."> Beingstolen ".."\x80"..k, (v~=nil and (v.valid and v.beingstolen)))
-				addline(CR.Data[v.chaosring_num].textmap.."> Captured ".."\x80"..k, (v~=nil and (v.valid and v.captured)))
-				addline(CR.Data[v.chaosring_num].textmap.."> Idle ".."\x80"..k, (v~=nil and (v.valid and v.idle)))
 			end
 		end
 	end

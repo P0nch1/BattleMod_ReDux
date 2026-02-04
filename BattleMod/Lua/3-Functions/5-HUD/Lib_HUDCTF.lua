@@ -145,7 +145,6 @@ local matchpoint_flash = TICRATE/2
 local matchpoint_shake = 1
 
 local ranking = false
-local C = B.Bank
 local function shouldDisplay(flag)
 	local despawning = flag.fuse < TICRATE and not(flag.floorvfx and #flag.floorvfx)
 	return flag.fuse > 1 and not despawning
@@ -212,8 +211,8 @@ local function drawFlagfromP(v)
 	--]]
 
 	local bpatch_flags, rpatch_flags = patch_flags, patch_flags
-	local bscore = bluescore - (C.ScoreDelay[2] or 0)
-	local rscore = redscore - (C.ScoreDelay[1] or 0)
+	local bscore = bluescore
+	local rscore = redscore
 
 	-- Blue flag score (drawn here so it's always shown on top of the flag icons)
 	local BFLG_SCR_X = BASEVIDWIDTH/2 - SEP - getdigits(bscore)*2
@@ -273,14 +272,10 @@ local function cctf_hud(v, p, cam)
 	elseif G_GametypeUsesLives() then
 		bflag = v.cachePatch("BMATCICO")
 		rflag = v.cachePatch("RMATCICO")
-	elseif B.BankGametype() or B.ArenaGametype() then
+	elseif B.ArenaGametype() then
 		local frames = 24
 		local spr = SPR_NCHP
 		local freeze = 2
-		if B.BankGametype() then
-			spr = SPR_TRNG
-			freeze = 1
-		end
 		local bframe = B.Wrap(leveltime/freeze, 1, frames)
 		local rframe = B.Wrap((leveltime+12)/freeze, 1, frames)
 		if spr == SPR_TRNG then

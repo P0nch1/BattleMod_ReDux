@@ -4,7 +4,6 @@ local CP = B.ControlPoint
 local D = B.Diamond
 local F = B.CTF
 local C = B.Bank
-local CR = C.ChaosRing
 
 addHook("MobjThinker", B.BattleShieldThinker, MT_BATTLESHIELD)
 addHook("MobjThinker", B.NegaShieldThinker, MT_NEGASHIELD)
@@ -228,13 +227,6 @@ B.BattleTagPointers = function(mo)
 		arrowscale = ARROW_CONSTANTSCALE
 		if CP.ID and CP.Num and CP.ID[CP.Num] and CP.ID[CP.Num].valid and ((CP.Timer <= TICRATE*10) or (CP.Active == true)) then
 			target = CP.ID[CP.Num]
-		else
-			delete = true
-		end
-	elseif B.BankGametype() then
-		arrowscale = ARROW_INVERTSCALE
-		if mo.tracer.player.gotcrystal or (mo.tracer.player.gotmaxrings) then
-			target = ((mo.tracer.player.ctfteam == 1) and C.RedBank) or C.BlueBank
 		else
 			delete = true
 		end

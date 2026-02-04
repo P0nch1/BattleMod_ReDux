@@ -32,11 +32,6 @@ B.RubyGametype = function()
 	else return false end
 end
 
-B.BankGametype = function()
-	if gametype and B.Gametypes.Bank[gametype] then return true
-	else return false end
-end
-
 B.ApplyGametypeCVars = function()
 	if B.GametypeIDtoIdentifier[gametype] then
 		local cvar_pointlimit = CV.FindVar(B.GametypeIDtoIdentifier[gametype].."_pointlimit")

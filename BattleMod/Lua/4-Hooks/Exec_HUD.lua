@@ -5,8 +5,6 @@ local A = B.Arena
 local D = B.Diamond
 local R = B.Ruby
 local F = B.CTF
-local C = B.Bank
-local CR = C.ChaosRing
 
 --Make a wrapper function so these can be modified
 --externally by any modder
@@ -37,8 +35,6 @@ hud.add(function(v,p,c)
 	F.CompassHUD(v,p,c)
 	F.TeamScoreHUD(v,p,c)
 	F.DelayCapNotice(v,p,c)
-	CR.ChaosRingHUD(v,p,c)
-	CR.ChaosRingCapHUD(v,p,c)
 
 	--Game state info
 	B.PreRoundHUD(v,p,c)
@@ -66,7 +62,6 @@ hud.add(function(v,p,c) --Ditto
 	B.StatsHUD(v,p,c)
 	F.RankingHUD(v,p,c)
 	B.TagRankHUD(v,p,c)
-	CR.BankRankHUD(v,p,c)
 	R.RubyRankHUD(v,p,c)
 	D.DiamondRankHUD(v,p,c)
 end,"scores")

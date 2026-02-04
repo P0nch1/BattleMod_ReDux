@@ -198,7 +198,7 @@ B.PlayerThinkFrame = function(player)
 	B.UpdateCollisionHistory(pmo)
 
 	--Pass Indicator for MacGuffins
-	if B.BankGametype() or B.RubyGametype() or B.DiamondGametype() then
+	if B.RubyGametype() or B.DiamondGametype() then
 		if player.gotcrystal and (player.cmd.buttons & BT_TOSSFLAG) and (player.mo and player.mo.valid) then 
 			B.MacGuffinPass(player)
 		end

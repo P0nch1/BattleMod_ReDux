@@ -22,8 +22,6 @@ B.Exiting = false
 B.PinchTics = 0
 B.Arena = {}
 B.Ruby = {}
-B.Bank = {}
-B.Bank.ChaosRing = {}
 B.Diamond = {}
 B.CTF = {}
 B.CTF.GameState = {}
@@ -285,23 +283,6 @@ B.AddBattleGametype({
 	description = "Combine melee and special moves to capture the enemy flag while protecting your own. Master the slipstream to catch up to enemy flagrunners!"
 })
 
-freeslot('tol_bank')
-B.AddBattleGametype({
-    name = "Chaos Control",
-    identifier = "bank",
-    typeoflevel = TOL_BANK|TOL_CTF|TOL_BATTLECTF,
-    rules = GTR_STARTCOUNTDOWN|GTR_OVERTIME|GTR_RESPAWNDELAY|GTR_PITYSHIELD|GTR_TEAMS|GTR_SPECTATORS|GTR_POINTLIMIT|GTR_TIMELIMIT|GTR_SPAWNINVUL|GTR_DEATHPENALTY|GTR_DEATHMATCHSTARTS|
-	GTR_HURTMESSAGES|GTR_TEAMFLAGS,
-    rankingtype = GT_CTF,
-	intermissiontype = int_ctf,
-	defaultpointlimit = 0,
-	defaulttimelimit = 8,
-	defaultstartrings = 0, --Specific to B.AddBattleGametype, default rings you start with
-    headerleftcolor = 37,
-    headerrightcolor = 150,
-    description = "Work with your allies to secure the most rings! Be on the look out for the mysterious Chaos rings..."
-})
-
 freeslot('tol_rubyrun')
 B.AddBattleGametype({
     name = "Ruby Run",
@@ -344,7 +325,6 @@ G.CP 			= {false,false,false,false,false,false,false,false}
 G.Arena 		= {false,false,false,false,false,false,false,false}
 G.Diamond 		= {false,false,false,false,false,false,false,false}
 G.Ruby 			= {false,false,false,false,false,false,false,false}
-G.Bank          = {false,false,false,false,false,false,false,false}
 
 -- Format: { [GAMETYPE], {[ GAMETYPE_VALUES ]}}
 -- NOTE: the 3rd field indicates that the gametype is a BATTLE gametype.
@@ -358,7 +338,6 @@ local GAMETYPE_INDICES = {
 	{GT_TEAMCP			,{0, false, true, true,  false,false, false, false}},
 	{GT_DIAMOND			,{0, false, true, false, false,true,  false, false}},
 	{GT_TEAMDIAMOND		,{0, false, true, false, false,true,  false, false}},
-	{GT_BANK			,{0, false, true, false, false,false, false, true}},
 	{GT_RUBYRUN 		,{0, false, true, false, false,false,  true, false}},
 	{GT_BATTLETAG		,{0, false, true, false, false,false, false, false}},
 }
@@ -373,5 +352,4 @@ for i =1,#GAMETYPE_INDICES do
 	G.Arena[GAME_TYPE_INDEX[1]] 		= GAME_TYPE_VALUES[5] -- Does this gametype use the Arena format?
 	G.Diamond[GAME_TYPE_INDEX[1]] 		= GAME_TYPE_VALUES[6] -- Does this gametype use the Diamond format?
 	G.Ruby[GAME_TYPE_INDEX[1]] 			= GAME_TYPE_VALUES[7] -- Does this gametype use the Ruby format?
-	G.Bank[GAME_TYPE_INDEX[1]] 			= GAME_TYPE_VALUES[8] -- Does this gametype use the Bank format?
 end

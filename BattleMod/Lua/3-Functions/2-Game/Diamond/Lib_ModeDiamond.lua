@@ -898,7 +898,6 @@ end
 
 
 D.ResetPlayerCaptime = function(player)
-	if B.BankGametype() then return end
 	if player.gotcrystal_time <= 0 then return end
 	if player.gotcrystal then return end
 	player.gotcrystal_time = 0
