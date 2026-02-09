@@ -98,10 +98,14 @@ B.Action.Dig=function(mo,doaction)
 		if P_PlayerInPain(player) and player.actionstate
 			B.ResetPlayerProperties(player,false,false)
 		end
+		if player.climbing then
+			player.actiontext = ""
+		end
 	return end
 	if not(B.CanDoAction(player))
 		if B.GetSVSprite(player)
 			B.ResetPlayerProperties(player,false,false)
+			end
 		return end
 	end
 
@@ -119,6 +123,7 @@ B.Action.Dig=function(mo,doaction)
 	player.actiontextflags = 0
 
 	//Normal state; ready to dig
+	if player.actionstate == 0 and not (player.climbing) then
 		player.actiontext = "Dig"
 		player.actionrings = 10
 	//2 = downward air drill; disallow actions.
@@ -268,10 +273,10 @@ B.Action.Dig=function(mo,doaction)
 		player.kgrab.momx = mo.momx
 		player.kgrab.momy = mo.momy
 		player.kgrab.momz = mo.momz
+		player.kgrab.player.actioncooldown = 2
 		
 		if player.kgrab.player and player.kgrab.player.valid
-			player.kgrab.player.actioncooldown = 2
-			player.kgrab.state = S_PLAY_PAIN
+	       player.kgrab.state = S_PLAY_PAIN
         end
 		
 		if P_IsObjectOnGround(mo) or player.actiontime > TICRATE*2
@@ -445,28 +450,14 @@ B.Knuckles_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle
 	if plr[n1].rising == true
 		if not ((hurt == 1 and n1 == 1) or (hurt == -1 and n1 == 2))
 		and not ((hurt == 1 and n2 == 1) or (hurt == -1 and n2 == 2))
-		then
 			--This mess is for when Knuckles' target is close to the ground.
-			if (not mo[n2].battleobject)
-			and (plr[n2].actionstate)
-			and (plr[n2].battle_def > 0 or plr[n2].battle_sdef > 0)
-			then
-			P_DamageMobj(mo[n1],mo[n2],mo[n2])
+			if plr[n2].actionstate and (plr[n2].battle_def > 0 or plr[n2].battle_sdef > 0) then P_DamageMobj(mo[n1],mo[n2],mo[n2])
 				mo[n1].hitstun_tics = 10 mo[n2].hitstun_tics = 10 return false end
 			if (plr[n2] and B.GetZCollideAngle(mo[n1],mo[n2]) <= -ANG30)  or (P_IsObjectOnGround(mo[n2]) or 
 							((mo[n2].floorrover and mo[n2].z-mo[n1].floorz < 35*FRACUNIT) or (mo[n2].z-mo[n2].floorz < 35*FRACUNIT)))
-							and (mo[n2].battleobject or plr[n1].battle_def > plr[n2].battle_def)
+							and (plr[n1].battle_def > plr[n2].battle_def)
 				plr[n1].kgrab = mo[n2]
-				if mo[n2].battleobject then
-					if #mo[n2].info == MT_SPARRINGDUMMY then
-						-- Stop tails doll from attacking you, so they aren't bullshitting ya.
-						mo[n2].attacking = 0
-						mo[n2].ammo = 0
-						mo[n2].cooldown = 3*TICRATE
-					end
-				else
-					B.ResetPlayerProperties(plr[n1].kgrab.player,false,false)
-				end
+				B.ResetPlayerProperties(plr[n1].kgrab.player,false,false)
 				plr[n1].actionstate = 20
 				P_SetObjectMomZ(mo[n1],-mo[n1].scale*40,true)
 				mo[n2].flags = $|MF_NOCLIPTHING
@@ -495,7 +486,6 @@ B.Knuckles_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle
 	end
 	return false
 end
-
 
 B.Knuckles_PostCollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
 	if plr[n1].rising == true
