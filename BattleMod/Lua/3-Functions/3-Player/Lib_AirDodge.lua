@@ -49,13 +49,13 @@ B.AirDodge = function(player)
 		player.airdodge_spin = ANGLE_90 + ANG10
 		if not(player.dodgecooldown)
 			player.safedodge = 1
-			player.dodgecooldown = CV.dodgetime.value*TICRATE
+			player.dodgecooldown = CV.dodgetime.value*TICRATE*3/2
 		else
 			player.safedodge = 0
 			if player.dodgecooldown > CV.dodgetime.value*TICRATE then
 				player.safedodge = -1
 			end
-			player.dodgecooldown = min($+CV.dodgetime.value*TICRATE,CV.dodgetime.value*TICRATE*3/2)
+			//player.dodgecooldown = min($+CV.dodgetime.value*TICRATE,CV.dodgetime.value*TICRATE*3/2)
 		end
 		
 		//State and flags

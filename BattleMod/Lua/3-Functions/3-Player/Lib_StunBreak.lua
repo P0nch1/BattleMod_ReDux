@@ -75,8 +75,8 @@ B.StunBreak = function(player, doguard)
 		mo.state = S_PLAY_ROLL
 		mo.temproll = 19
 		player.exhaustmeter = min($, player.ledgemeter)
-		player.powers[pw_invulnerability] = mo.temproll
-		player.powers[pw_flashing] = 0
+		//player.powers[pw_invulnerability] = mo.temproll
+		player.powers[pw_flashing] = mo.temproll
 		player.airdodge = 0
 		
 		//Launch
