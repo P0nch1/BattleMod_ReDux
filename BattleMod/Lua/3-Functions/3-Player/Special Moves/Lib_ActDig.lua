@@ -449,14 +449,28 @@ B.Knuckles_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle
 	if plr[n1].rising == true
 		if not ((hurt == 1 and n1 == 1) or (hurt == -1 and n1 == 2))
 		and not ((hurt == 1 and n2 == 1) or (hurt == -1 and n2 == 2))
+		then
 			--This mess is for when Knuckles' target is close to the ground.
-			if plr[n2].actionstate and (plr[n2].battle_def > 0 or plr[n2].battle_sdef > 0) then P_DamageMobj(mo[n1],mo[n2],mo[n2])
+			if (not mo[n2].battleobject)
+			and (plr[n2].actionstate)
+			and (plr[n2].battle_def > 0 or plr[n2].battle_sdef > 0)
+			then
+			P_DamageMobj(mo[n1],mo[n2],mo[n2])
 				mo[n1].hitstun_tics = 10 mo[n2].hitstun_tics = 10 return false end
 			if (plr[n2] and B.GetZCollideAngle(mo[n1],mo[n2]) <= -ANG30)  or (P_IsObjectOnGround(mo[n2]) or 
 							((mo[n2].floorrover and mo[n2].z-mo[n1].floorz < 35*FRACUNIT) or (mo[n2].z-mo[n2].floorz < 35*FRACUNIT)))
-							and (plr[n1].battle_def > plr[n2].battle_def)
+							and (mo[n2].battleobject or plr[n1].battle_def > plr[n2].battle_def)
 				plr[n1].kgrab = mo[n2]
-				B.ResetPlayerProperties(plr[n1].kgrab.player,false,false)
+				if mo[n2].battleobject then
+					if #mo[n2].info == MT_SPARRINGDUMMY then
+						-- Stop tails doll from attacking you, so they aren't bullshitting ya.
+						mo[n2].attacking = 0
+						mo[n2].ammo = 0
+						mo[n2].cooldown = 3*TICRATE
+					end
+				else
+					B.ResetPlayerProperties(plr[n1].kgrab.player,false,false)
+				end
 				plr[n1].actionstate = 20
 				P_SetObjectMomZ(mo[n1],-mo[n1].scale*40,true)
 				mo[n2].flags = $|MF_NOCLIPTHING
@@ -485,6 +499,7 @@ B.Knuckles_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle
 	end
 	return false
 end
+
 
 B.Knuckles_PostCollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
 	if plr[n1].rising == true
