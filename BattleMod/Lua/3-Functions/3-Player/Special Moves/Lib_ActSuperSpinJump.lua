@@ -13,7 +13,7 @@ local pound_downaccel = FRACUNIT*4//4
 local jumpfriction = FRACUNIT*9/10
 local poundfriction = FRACUNIT
 local reboundthrust = 13
-local gp_distance = FRACUNIT*168
+local gp_distance = FRACUNIT*200
 
 B.Action.SuperSpinJump_Priority = function(player)
 	local mo = player.mo
@@ -26,11 +26,11 @@ B.Action.SuperSpinJump_Priority = function(player)
 	end
 
 	if player.actionstate == state_superspinjump then
-		B.SetPriority(player,1,1,"tails_fly",2,1,"super spin jump")
+		B.SetPriority(player,1,1,nil,1,1,"super spin jump")
 	elseif player.actionstate == state_groundpound_rise then
 		B.SetPriority(player,1,1,nil,1,1,"rising ground pound")
 	elseif player.actionstate == state_groundpound_fall then
-		B.SetPriority(player,1,1,"stomp",2,2,"ground pound")
+		B.SetPriority(player,1,1,nil,1,1,"ground pound")
 	elseif player.actionstate == state_superspinwave then
 		B.SetPriority(player,0,0,nil,0,0,"spin wave recoil")
 	end
