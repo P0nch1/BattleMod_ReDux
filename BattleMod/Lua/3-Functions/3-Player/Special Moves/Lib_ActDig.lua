@@ -105,7 +105,6 @@ B.Action.Dig=function(mo,doaction)
 	if not(B.CanDoAction(player))
 		if B.GetSVSprite(player)
 			B.ResetPlayerProperties(player,false,false)
-			end
 		return end
 	end
 
@@ -123,7 +122,7 @@ B.Action.Dig=function(mo,doaction)
 	player.actiontextflags = 0
 
 	//Normal state; ready to dig
-	if player.actionstate == 0 and not (player.climbing) then
+	if player.actionstate == 0 then
 		player.actiontext = "Dig"
 		player.actionrings = 10
 	//2 = downward air drill; disallow actions.
@@ -163,7 +162,7 @@ B.Action.Dig=function(mo,doaction)
 	
 	//Execute dig
 	if trigger_dig
-		if player.actionstate == 0 and not climbing then
+		if player.actionstate == 0 then
 			B.PayRings(player)
 		end
 		player.actionstate = state_digging
