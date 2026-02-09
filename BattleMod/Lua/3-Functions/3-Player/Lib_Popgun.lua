@@ -2,7 +2,7 @@
 
 local B = CBW_Battle
 
-local refiretime = 28
+local refiretime = 18
 
 B.NewGunLook = function(player)
 	local twod = (twodlevel or player.mo.flags2 & MF2_TWOD)
@@ -156,11 +156,11 @@ local function newGunslinger(player)
 			//Air function
 			if not(P_IsObjectOnGround(mo))
 				B.ResetPlayerProperties(player,false,true)
-				P_Thrust(mo,mo.angle+ANGLE_180,mo.scale*10)
-				P_SetObjectMomZ(mo,FRACUNIT*5,true)
-				mo.momx = $/2
-				mo.momy = $/2
-				mo.momz = $/2
+				//P_Thrust(mo,mo.angle+ANGLE_180,mo.scale*10)
+				//P_SetObjectMomZ(mo,FRACUNIT*5,true)
+				//mo.momx = $/2
+				//mo.momy = $/2
+				//mo.momz = $/2
 				mo.state = S_PLAY_MELEE
 				player.airgun = true
 			else
