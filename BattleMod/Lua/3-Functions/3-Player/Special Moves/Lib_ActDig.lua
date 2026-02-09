@@ -94,6 +94,7 @@ B.Action.Dig=function(mo,doaction)
 	if P_PlayerInPain(player)
 	or player.playerstate != PST_LIVE
 	or (player.actionstate == state_drilldive and player.powers[pw_nocontrol])
+	or player.climbing
 		if P_PlayerInPain(player) and player.actionstate
 			B.ResetPlayerProperties(player,false,false)
 		end
@@ -118,7 +119,6 @@ B.Action.Dig=function(mo,doaction)
 	player.actiontextflags = 0
 
 	//Normal state; ready to dig
-	if player.actionstate == 0 then
 		player.actiontext = "Dig"
 		player.actionrings = 10
 	//2 = downward air drill; disallow actions.
@@ -158,7 +158,7 @@ B.Action.Dig=function(mo,doaction)
 	
 	//Execute dig
 	if trigger_dig
-		if player.actionstate == 0 then
+		if player.actionstate == 0 and not climbing then
 			B.PayRings(player)
 		end
 		player.actionstate = state_digging
