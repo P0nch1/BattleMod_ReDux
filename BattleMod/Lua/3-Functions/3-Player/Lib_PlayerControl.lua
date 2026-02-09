@@ -74,6 +74,7 @@ B.InitPlayer = function(player)
 	player.nodamage = 0
 	player.temproll = 0
 	player.lasthoming = 0
+	player.kgrab = nil
 	//variables for battle tag
 	player.battletagIT = false
 	player.BTblindfade = 0

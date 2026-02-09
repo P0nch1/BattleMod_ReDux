@@ -16,7 +16,7 @@ B.Action.Dig_Priority = function(player)
 		B.SetPriority(player,1,0,"fang_springdrop",2,1,"drill dive")
 	end
 	if player.actionstate == state_rising then
-		B.SetPriority(player,1,0,"tails_fly",2,1,"rising drill")
+		B.SetPriority(player,0,2,"tails_fly",0,2,"rising drill")
 	end
 end
 
@@ -82,6 +82,14 @@ end
 
 B.Action.Dig=function(mo,doaction)
 	local player = mo.player
+	local skin = skins[player.skin]
+	local gray = "\x86"
+	
+	if not (player.gotflag or player.gotcrystal) and player.actionstate == 0 then //For digging state
+		player.normalspeed = skin.normalspeed
+		player.acceleration = skin.acceleration
+		player.thrustfactor = skin.thrustfactor
+	end	
 
 	if P_PlayerInPain(player)
 	or player.playerstate != PST_LIVE
@@ -137,7 +145,7 @@ B.Action.Dig=function(mo,doaction)
 	
 	//Action triggers
 	local trigger_dig =
-		(doaction == 1 and not(sludge) and player.actionstate == 0 and (grounded or climbing))
+		(doaction == 1 and not(sludge) and player.actionstate == 0 and (grounded))
 		or (grounded and player.actionstate == state_drilldive and not(sludge))
 	local trigger_drilldive = (not(grounded and not sludge) and doaction == 1 and player.actionstate == 0)
 	local trigger_drilldive_cancel = (player.actionstate == state_drilldive and mo.momz*P_MobjFlip(mo) > 0)
@@ -224,10 +232,63 @@ B.Action.Dig=function(mo,doaction)
 	if player.actionstate == state_rising
 		player.actiontime = $+1
 		B.DrawSVSprite(player,(player.actiontime/2)%4+5)
+		player.pflags = $|PF_THOKKED
 		//End rising state
 		if P_MobjFlip(mo)*mo.momz <= 0 or P_IsObjectOnGround(mo)
-			B.ResetPlayerProperties(player,true,false)
+			B.ResetPlayerProperties(player,false,false)
 			player.exhaustmeter = FRACUNIT / 3 + 1
+		end
+	end
+	
+	if player.kgrab and player.kgrab.valid and not player.actionstate then
+		player.kgrab.flags = $&~MF_NOCLIPTHING
+		player.mo.flags = $&~MF_NOCLIPTHING
+		player.kgrab = nil
+	end
+	
+	if player.actionstate == 20 and player.kgrab and player.kgrab.valid --Studied Austin's grab script to get this where I wanted it to be. Thanks! -JoJo
+		player.actiontime = $+1
+		B.DrawSVSprite(player,(player.actiontime/2)%4+5)
+		P_SetObjectMomZ(mo,(-mo.scale*2/B.WaterFactor(mo)),true)
+		local x = mo.x
+		local y = mo.y
+		local oldz = player.kgrab.z
+--		local oldx = player.kgrab.x
+--		local oldy = player.kgrab.y
+		player.kgrab.z = mo.height+mo.z+mo.scale*12*P_MobjFlip(mo)
+		if player.kgrab.valid
+			if P_CheckPosition(player.kgrab,x,y)
+				P_MoveOrigin(player.kgrab,x,y,player.kgrab.z+(mo.height/2))
+			else 
+				player.kgrab.z = oldz
+			end
+		end
+		
+		player.drawangle = player.mo.angle
+		player.kgrab.momx = mo.momx
+		player.kgrab.momy = mo.momy
+		player.kgrab.momz = mo.momz
+		player.kgrab.player.actioncooldown = 2
+		
+		if player.kgrab.player and player.kgrab.player.valid
+	       player.kgrab.state = S_PLAY_PAIN
+        end
+		
+		if P_IsObjectOnGround(mo) or player.actiontime > TICRATE*2
+			P_DamageMobj(player.kgrab,mo,mo)
+			S_StartSoundAtVolume(mo,sfx_s3k49, 200)
+			S_StartSound(player.kgrab,sfx_s3k5f)
+			S_StartSound(mo,sfx_s3k59)
+			player.actionstate = 0
+			player.actiontime = 0
+			mo.momx = $*3/2
+			mo.momy = $*3/2
+			mo.state = S_PLAY_GLIDE_LANDING
+			player.kgrab.flags = $&~MF_NOCLIPTHING
+			player.mo.flags = $&~MF_NOCLIPTHING
+			player.kgrab = nil
+			rockblast(mo,true) -- Use sparkles instead?
+			P_StartQuake(FRACUNIT*5,TICRATE/3)
 		end
 	end
 	
@@ -261,6 +322,8 @@ B.Action.Dig=function(mo,doaction)
 	mo.flags2 = $|MF2_DONTDRAW //Invisibility
 	player.charability2 = 0 //Disallow spindashing
 	player.canguard = false //Disallow guarding
+	player.normalspeed = skin.normalspeed*9/8
+	player.acceleration = skin.acceleration*9/8
 	
 	//Clip to ground
 	if not(climbing) then
@@ -315,6 +378,7 @@ B.Action.Dig=function(mo,doaction)
 		B.PayRings(player)
 		player.pflags = $&~PF_JUMPSTASIS
 		P_DoJump(player,false)
+		B.ZLaunch(mo, FRACUNIT*5/2, true)
 		B.ResetPlayerProperties(player,true,true)
 		if grounded
 			player.actionstate = state_rising
@@ -334,14 +398,14 @@ B.Action.Dig=function(mo,doaction)
 		for n = 0, 7
 			B.DoDebris(mo,P_RandomChance(FRACUNIT/2),P_RandomRange(3,20))
 		end
-		rockblast(mo,grounded)
+		--rockblast(mo,grounded)
 	end
 end
 
 B.DoDebris=function(mo,large,speed)
 	local scale
 	if large then scale = mo.scale/2
-	else scale = mo.scale/3
+		else scale = mo.scale/3
 	end
 	local debris = P_SpawnMobj(mo.x,mo.y,mo.z,MT_ROCKCRUMBLE2)
 	if debris and debris.valid then
@@ -368,8 +432,36 @@ B.RockBlastObject = function(mo)
 	end
 end
 
+B.Knuckles_PreCollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
+	if plr[n1] and plr[n1].actionstate == state_rising then
+		plr[n1].rising = true
+	else
+		plr[n1].rising = false
+		return false
+	end
+end
+
 B.Knuckles_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
-	if plr[n1] and mo[n1].health and not(pain[n1])
+	if plr[n1].rising == true
+		if not ((hurt == 1 and n1 == 1) or (hurt == -1 and n1 == 2))
+		and not ((hurt == 1 and n2 == 1) or (hurt == -1 and n2 == 2))
+			--This mess is for when Knuckles' target is close to the ground.
+			if plr[n2].actionstate and (plr[n2].battle_def > 0 or plr[n2].battle_sdef > 0) then P_DamageMobj(mo[n1],mo[n2],mo[n2])
+				mo[n1].hitstun_tics = 10 mo[n2].hitstun_tics = 10 return false end
+			if (plr[n2] and B.GetZCollideAngle(mo[n1],mo[n2]) <= -ANG30)  or (P_IsObjectOnGround(mo[n2]) or 
+							((mo[n2].floorrover and mo[n2].z-mo[n1].floorz < 35*FRACUNIT) or (mo[n2].z-mo[n2].floorz < 35*FRACUNIT)))
+							and (plr[n1].battle_def > plr[n2].battle_def)
+				plr[n1].kgrab = mo[n2]
+				B.ResetPlayerProperties(plr[n1].kgrab.player,false,false)
+				plr[n1].actionstate = 20
+				P_SetObjectMomZ(mo[n1],-mo[n1].scale*40,true)
+				mo[n2].flags = $|MF_NOCLIPTHING
+				mo[n1].flags = $|MF_NOCLIPTHING
+				plr[n1].pflags = $|PF_THOKKED
+				return false
+			end
+		end
+	elseif plr[n1] and mo[n1].health and not(pain[n1])
 		and (plr[n1].pflags&PF_GLIDING or plr[n1].climbing 
 			or (plr[n1].charability == CA_GLIDEANDCLIMB) and collisiontype > 1 and P_IsObjectOnGround(mo[n1]) and not(plr[n1].pflags&PF_SPINNING)
 		) then
@@ -389,3 +481,31 @@ B.Knuckles_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle
 	end
 	return false
 end
+
+B.Knuckles_PostCollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
+	if plr[n1].rising == true
+		plr[n1].rising = false
+		return false
+	end
+	if plr[n1].kdive 
+		B.ResetPlayerProperties(plr[n1],true,false)
+		mo[n1].state = S_PLAY_FALL
+		plr[n1].kdive = false
+		plr[n1].kdunked = true
+		B.ZLaunch(mo[n1], FRACUNIT*6, true)
+	end
+end
+
+addHook("MobjDeath",function(monitor,knuckles)
+	if monitor.valid and monitor.flags & MF_MONITOR
+		if knuckles and knuckles.valid
+			if not knuckles.player return end
+			if knuckles.player.kdive
+				B.ResetPlayerProperties(knuckles.player,true,false)
+				knuckles.state = S_PLAY_FALL
+				knuckles.player.kdive = false
+				knuckles.player.kdunked = true
+			end
+		end
+	end
+end)

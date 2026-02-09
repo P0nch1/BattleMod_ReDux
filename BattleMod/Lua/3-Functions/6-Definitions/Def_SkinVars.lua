@@ -50,7 +50,9 @@ S["knuckles"] = {
 	special = Act.Dig,
 	guard_frame = 2,
 	func_priority_ext = Act.Dig_Priority,
+	func_precollide = B.Knuckles_PreCollide,
 	func_collide = B.Knuckles_Collide,
+	func_postcollide = B.Knuckles_PostCollide,
 	sprites = {
 		S_KNUCKLES_DRILLDIVE1,
 		S_KNUCKLES_DRILLDIVE2,
