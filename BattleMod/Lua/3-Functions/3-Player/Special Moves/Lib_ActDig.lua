@@ -272,10 +272,10 @@ B.Action.Dig=function(mo,doaction)
 		player.kgrab.momx = mo.momx
 		player.kgrab.momy = mo.momy
 		player.kgrab.momz = mo.momz
-		player.kgrab.player.actioncooldown = 2
 		
 		if player.kgrab.player and player.kgrab.player.valid
-	       player.kgrab.state = S_PLAY_PAIN
+			player.kgrab.player.actioncooldown = 2
+			player.kgrab.state = S_PLAY_PAIN
         end
 		
 		if P_IsObjectOnGround(mo) or player.actiontime > TICRATE*2
