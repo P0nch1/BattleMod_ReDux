@@ -287,6 +287,7 @@ B.Action.Dig=function(mo,doaction)
 			player.actiontime = 0
 			mo.momx = $*3/2
 			mo.momy = $*3/2
+			P_SetObjectMomZ(player.kgrab,FRACUNIT*5,true)
 			mo.state = S_PLAY_GLIDE_LANDING
 			player.kgrab.flags = $&~MF_NOCLIPTHING
 			player.mo.flags = $&~MF_NOCLIPTHING
