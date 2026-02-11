@@ -195,6 +195,7 @@ B.BattleTagPointers = function(mo)
 				color = skincolor_blueteam
 			else
 				hide = true
+				delete = true
 			end
 		else
 			if player.gotflag then
