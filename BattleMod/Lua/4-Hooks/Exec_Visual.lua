@@ -177,9 +177,9 @@ B.BattleTagPointers = function(mo)
 	local arrowscale = ARROW_TAGSCALE
 	local target = mo.target
 	local color = SKINCOLOR_NONE
-	local player = mo.tracer.player
+	local player = (mo.tracer and mo.tracer.player) or nil
 
-	if not(B.IsValidPlayer(mo.tracer)) or not(mo.tracer) then
+	if not(B.IsValidPlayer(mo.tracer)) or not(mo.tracer) or (player.playerstate == PST_DEAD) then
 		if mo and mo.valid then
 			P_RemoveMobj(mo)
 		end
