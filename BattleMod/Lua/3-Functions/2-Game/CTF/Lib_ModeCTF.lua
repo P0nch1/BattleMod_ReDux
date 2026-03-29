@@ -1269,7 +1269,7 @@ F.CustomCaptureSFX = function()
 		local old_score = ({F.BlueFlag_oldscore, F.RedFlag_oldscore})[i]
 		local new_score = ({redscore, bluescore})[i]
 
-		if (flag and flag.valid) and flag_player and not(flag.player) then
+		if (new_score != nil) and (old_score != nil) and (flag and flag.valid) and flag_player and not(flag.player) then
 			--S_StartSoundAtVolume(nil, sfx_flgcap, 0)
 			--S_StartSoundAtVolume(nil, sfx_lose, 0)
 			if new_score > old_score then
