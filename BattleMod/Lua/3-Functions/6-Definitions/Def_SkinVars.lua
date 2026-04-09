@@ -32,7 +32,7 @@ S["sonic"] = {
 	momentum = TICRATE
 }
 S["tails"] = {
-	weight = 90,
+	weight = 80,
 	special = Act.TailSwipe,
 	guard_frame = 2,
 	func_priority_ext = Act.TailSwipe_Priority,
