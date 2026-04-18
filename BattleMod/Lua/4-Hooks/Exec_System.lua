@@ -89,6 +89,7 @@ addHook("ThinkFrame",function()
 		B.PlayerThinkFrame(player)
 		F.UpdateCaps(player)
 	end
+	B.TitleTicker()
 	B.Autobalance()
 	
 	B.ResetScore()
@@ -123,9 +124,11 @@ B.AutoLoad = function(player)
 end
 addHook("PlayerThink", B.AutoLoad) --i wish this was a "PlayerJoin" hook instead but idk how to use it so here it goes!!
 
-B.Whatever = function()
+B.Whatever = function(...)
 	if consoleplayer and (consoleplayer.win or consoleplayer.loss) then
 		return true
 	end
+
+	return B.TitleMusicChange(...)
 end
 addHook("MusicChange", B.Whatever)
