@@ -103,12 +103,13 @@ local function newGunslinger(player)
 		-- Same code as vanilla, but without the clause for speed.
 		-- You naturally lose your speed via friction.
 		-- v10 EDIT: Now Fang automatically looks towards lockons
+		-- v10 EDIT: KILL ALL LOCKONS
 
-		local lockon = B.NewGunLook(player)
+		--[[local lockon = B.NewGunLook(player)
 		if (lockon and lockon.valid)
 			player.drawangle = R_PointToAngle2(mo.x, mo.y, lockon.x, lockon.y)
 			P_SpawnLockOn(player, lockon, mobjinfo[MT_LOCKON].spawnstate)
-		end
+		end]]
 		//Trigger firing action
 		if (player.cmd.buttons & BT_SPIN)
 -- 		and not (player.gunheld)
@@ -126,7 +127,7 @@ local function newGunslinger(player)
 				P_StartQuake(4*FRACUNIT,1)
 			end
 			
-			if (lockon and lockon.valid)
+			--[[if (lockon and lockon.valid)
 				mo.angle = R_PointToAngle2(mo.x, mo.y, lockon.x, lockon.y)
 				bullet = P_SpawnPointMissile(
 					mo,
@@ -135,7 +136,7 @@ local function newGunslinger(player)
 					mo.x, mo.y, zpos(mo, player.revitem)
 				)
 
-			else
+			else]]
 				bullet = P_SpawnPointMissile(
 					mo,
 					mo.x + P_ReturnThrustX(nil, mo.angle, FRACUNIT),
@@ -150,7 +151,7 @@ local function newGunslinger(player)
 					bullet.momx = $1 / 2
 					bullet.momy = $1 / 2
 				end
-			end
+			--end
 -- 	 			player.gunheld = true
 			player.drawangle = mo.angle
 			//Air function
