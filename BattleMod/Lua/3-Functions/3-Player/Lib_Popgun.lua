@@ -129,8 +129,8 @@ local function newGunslinger(player)
 			mo.state = S_PLAY_FIRE
 			player.panim = PA_ABILITY2
 			player.weapondelay = refiretime
-			mo.momx = $ * 2/3
-			mo.momy = $ * 2/3
+			mo.momx = $ * 3/4
+			mo.momy = $ * 3/4
 			S_StartSoundAtVolume(mo,sfx_s1c4,150)
 			
 			if player == consoleplayer
@@ -158,10 +158,13 @@ local function newGunslinger(player)
 
 			if (bullet and bullet.valid)
 				-- bullet.flags = $1 & ~MF_NOGRAVITY
-				local speed = max(26 * mo.scale, FixedHypot(mo.momx - player.cmomx, mo.momy - player.cmomy) * 5 / 4)
+				local speed = max(35 * mo.scale, FixedHypot(mo.momx - player.cmomx, mo.momy - player.cmomy) * 6 / 4)
+				local angle = R_PointToAngle2(0, 0, bullet.momx, bullet.momy)
+				local aiming = R_PointToAngle2(0, 0, FixedHypot(bullet.momx, bullet.momy), bullet.momz)
 
-				bullet.momx = P_ReturnThrustX(nil, mo.angle, speed)
-				bullet.momy = P_ReturnThrustY(nil, mo.angle, speed)
+				bullet.momx = P_ReturnThrustX(nil, angle, FixedMul(speed, cos(aiming))
+				bullet.momy = P_ReturnThrustY(nil, angle, FixedMul(speed, cos(aiming)))
+				bullet.momz = FixedMul(speed, sin(aiming))
 			end
 
 			player.drawangle = mo.angle
