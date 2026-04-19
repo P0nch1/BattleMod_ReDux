@@ -64,7 +64,7 @@ B.MasterActionScript = function(player,doaction,type)
 	end
 
 	if special ~= nil then
-		S[t].special(mo,doaction)
+		special(mo,doaction)
 		--For custom characters
 		if player.spendrings == 1 then
 			if not(spendringwarning) then

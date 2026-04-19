@@ -2,25 +2,10 @@ local B = CBW_Battle
 local cooldown = TICRATE * 2
 local cooldown2 = TICRATE * 5
 local duration = 3 * TICRATE
-local xythrust = 38
+local xythrust = 20
 local zthrust = 9
 local dropspeed = 20
 local nojumpwindow = 10
-
-B.Action.Slide_PlayerThink = function(mo)
-	local player = mo.player
-
-	local grounded = P_IsObjectOnGround(mo) or mo.eflags & MFE_JUSTHITFLOOR
-	local bouncing = player.pflags&PF_BOUNCING
-	local activate = player.actiontime == 0 and doaction == 1
-	local slide_trigger = activate and not(bouncing)
-	local springdrop_trigger = activate and bouncing
-	local drop_state = player.actionstate == 1 and bouncing
-		and P_MobjFlip(mo)*mo.momz < 0
-	local sliding = player.actionstate == 2
-		and player.pflags & PF_SPINNING
-
-end
 
 B.Action.Slide = function(mo,doaction)
 	local player = mo.player
@@ -47,12 +32,15 @@ B.Action.Slide = function(mo,doaction)
 	//Perform Thrust
 	if slide_trigger
 		-- thrust player forward
-		local speed = max(xythrust * mo.scale, FixedHypot(mo.momx - player.cmomx, mo.momy - player.cmomy) * 3 / 2)
+		local speed = max(xythrust * mo.scale, FixedHypot(mo.momx - player.cmomx, mo.momy - player.cmomy) * 5 / 4)
 
 		B.PayRings(player)
 		B.ApplyCooldown(player, cooldown2)
 
 		P_InstaThrust(mo, mo.angle, speed)
+		player.slidebouncex = mo.momx
+		player.slidebouncey = mo.momy
+		player.slidebouncez = abs(mo.momz)
 		player.pflags = ($|PF_SPINNING) & ~(PF_THOKKED|PF_JUMPED|PF_BOUNCING)
 		player.actionstate = 2
 		player.actiontime = duration
@@ -94,8 +82,8 @@ B.Action.Slide = function(mo,doaction)
 		player.actiontime = 0
 		player.actionstate = 0
 	elseif player.actionstate == 1
-	and not bouncing
-	or mo.eflags & MFE_SPRUNG then
+	and (not bouncing
+	or mo.eflags & MFE_SPRUNG) then
 		player.actiontime = 0
 		player.actionstate = 0
 	end
@@ -105,7 +93,6 @@ B.Action.Slide = function(mo,doaction)
 			player.actiontime = $-1
 		end
 		if leveltime%8 then
-			print("ghost")
 			P_SpawnGhostMobj(mo)
 		end
 
@@ -118,16 +105,34 @@ B.Action.Slide = function(mo,doaction)
 		player.pflags = ($|PF_SPINNING) & ~(PF_THOKKED|PF_JUMPED|PF_BOUNCING)
 
 		if mo.eflags & MFE_JUSTHITFLOOR or mo.eflags & MFE_SPRUNG then
-			print("hit floor or sprung")
 			mo.state = S_FANG_SLIDE
 		end
+		if mo.eflags & MFE_JUSTHITFLOOR then
+			if player.slidebouncez >= 10 * mo.scale then
+				P_SetObjectMomZ(mo, player.slidebouncez/2)
+			end
+			mo.momx = player.slidebouncex
+			mo.momy = player.slidebouncey
+		end
 
-		if player.actiontime == 0 then
+		player.slidebouncex = mo.momx
+		player.slidebouncey = mo.momy
+		player.slidebouncez = abs(mo.momz)
+
+		if player.actiontime == 0
+		or FixedHypot(mo.momx - player.cmomx, mo.momy - player.cmomy) < 4 * mo.scale
+		or player.powers[pw_carry] then
 			mo.state = S_PLAY_STND
 			mo.momx = $/2
 			mo.momy = $/2
+			player.pflags = $ & ~PF_SPINNING
 			player.actionstate = 0
 		end
+	end
+
+	if not player.actionstate then
+		-- for some reason this is being set to 9 upon spawn. why is it doing that
+		player.actiontime = 0
 	end
 end
 
@@ -143,58 +148,60 @@ local function fanghop(player)
 	player.powers[pw_nocontrol] = 16
 end
 
-local function iscombatroll(player)
+local function isSlide(player)
 	if not (player and player.valid and player.playerstate == PST_LIVE)
-		or not player.mo
-		or not (player.actiontime and player.mo.state == S_PLAY_ROLL)
-		or not player.mo.health
+	or not player.mo
+	or not player.mo.health
+	or player.actionstate ~= 2 then
 		return false
 	end
 	return true
 end
 
 B.Fang_PreCollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
-	if iscombatroll(plr[n1])
+	if isSlide(plr[n1]) then
 		plr[n1].fangmarker = true
 	end
 end
 
 B.Fang_PostCollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
-	if plr[n1] and plr[n1].fangmarker
+	if plr[n1] and plr[n1].fangmarker then
 		plr[n1].fangmarker = nil
 	end
 end
 
 B.Fang_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
-	if not (plr[n1] and plr[n1].fangmarker)
+	if not (plr[n1] and plr[n1].fangmarker) then
 		return false
 	end
-	if (hurt != 1 and n1 == 1) or (hurt != -1 and n1 == 2)
-		if not (plr[n2] and plr[n2].fangmarker)
-			fanghop(plr[n1])
+
+	if (hurt != 1 and n1 == 1) or (hurt != -1 and n1 == 2) then
+		mo[n1].momx = $/3
+		mo[n1].momy = $/3
+
+		if plr[n2] then
+			B.DoPlayerTumble(plr[n2], 50, angle[n1], mo[n1].scale*3, true, true)
 		end
-		if plr[n2]
-			B.DoPlayerTumble(plr[n2], 24, angle[n1], mo[n1].scale*3, true, true)
-		end
-		P_InstaThrust(mo[n2], angle[n2], mo[n1].scale * 5)
-		B.ZLaunch(mo[n2], 7 * mo[n2].scale, false)
+
+		P_InstaThrust(mo[n2], angle[n2], -mo[n1].scale * 5)
+		B.ZLaunch(mo[n2], 10 * mo[n2].scale, false)
 		return true
 	end
 end
 
-B.Action.CombatRoll_Priority = function(player)
+B.Action.Slide_Priority = function(player)
 	local mo = player.mo
 	if not (mo and mo.valid) return end
 	
 	local bouncing = player.pflags&PF_BOUNCING
 	local drop_state = player.actionstate == 1 and bouncing
 		and P_MobjFlip(mo)*mo.momz < 0
-	local thrust_state = player.actiontime and mo.state == S_PLAY_ROLL
-		and not(P_IsObjectOnGround(mo)) and player.actiontime < 20
+	local sliding = player.actionstate == 2
+		and player.actiontime
 	
-	if player.actionstate == 1
+	if player.actionstate == 1 then
 		B.SetPriority(player,0,1,"fang_springdrop",2,3,"spring drop")
-	elseif player.actionstate == 2
-		B.SetPriority(player,1,1,nil,1,1,"combat roll")
+	elseif player.actionstate == 2 then
+		B.SetPriority(player,0,1,nil,0,1,"fang slide")
 	end
 end
