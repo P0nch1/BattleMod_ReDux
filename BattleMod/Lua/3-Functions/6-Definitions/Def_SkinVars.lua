@@ -23,10 +23,14 @@ S[-1] = {
 	momentum = 0
 }
 S["sonic"] = {
+	flags = SKINVARS_GUARD|SKINVARS_HUMMINGTOP,
 	weight = 100, 
 	special = Act.SuperSpinJump,
 	guard_frame = 2,
 	func_priority_ext = Act.SuperSpinJump_Priority,
+	func_precollide = B.Sonic_PreCollide,
+	func_collide = B.Sonic_Collide,
+	func_postcollide = B.Sonic_PostCollide,
 	sprites = {},
 	supersprites = true,
 	momentum = TICRATE

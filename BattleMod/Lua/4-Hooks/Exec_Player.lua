@@ -87,6 +87,11 @@ addHook("AbilitySpecial",function(player)
 	if not(B.MidAirAbilityAllowed(player)) then return true end
 
 	local handler = B.AbilityHandlers[player.charability]
+
+	if (player.charability == CA_JUMPTHOK) and (B.GetSkinVarsFlags(player) & SKINVARS_HUMMINGTOP) then
+		return B.HummingTop_AbilitySpecial(player)
+	end
+
     if handler then
         return handler(player, mo)
     end
@@ -363,6 +368,9 @@ addHook("MobjMoveBlocked", function(mo)
 	if mo.player then
 		mo.player.lastmoveblock = leveltime
 	end
+
+	return B.Sonic_HTopMoveBlocked(mo)
+
 end, MT_PLAYER)
 
 -- When touching the large bubbles, *breathe*
@@ -390,3 +398,7 @@ addHook("ViewpointSwitch", function(...)
     	return B.SurvivalViewpoints(...)
 	end
 end)
+
+addHook("MobjLineCollide", function(mo, line)
+	return B.Sonic_HTopLineCollide(mo, line)
+end, MT_PLAYER)

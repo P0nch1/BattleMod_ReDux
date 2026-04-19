@@ -18,9 +18,23 @@ B.FlashRainbow = function(mo)
 	if t == 3 then return B.FlashColor(SKINCOLOR_SUPERSILVER1,SKINCOLOR_SUPERSILVER5) end
 end
 
+local applyFlip = function(mo1, mo2)
+	if mo1.eflags & MFE_VERTICALFLIP then
+		mo2.eflags = $|MFE_VERTICALFLIP
+	else
+		mo2.eflags = $ & ~MFE_VERTICALFLIP
+	end
+	
+	if mo1.flags2 & MF2_OBJECTFLIP then
+		mo2.flags2 = $|MF2_OBJECTFLIP
+	else
+		mo2.flags2 = $ & ~MF2_OBJECTFLIP
+	end
+end
+
 local overlayZ = function(mo, overlaytype, flip)
 	if flip then
-		return mo.z-(mo.height/2)
+		return mo.z+(mo.height)
 	else
 		return mo.z
 	end
@@ -101,6 +115,7 @@ function B.SpawnFlash(mo, tics, circle)
 
 	if circle then
 		local circle = P_SpawnMobj(mo.x, mo.y,overlayZ(mo, MT_THOK, (mo.flags2 & MF2_OBJECTFLIP)), MT_THOK)
+		applyFlip(mo, circle)
 		circle.sprite = SPR_STAB
 		circle.frame =  _G["A"]
 		--circle.angle = mo.angle + ANGLE_90

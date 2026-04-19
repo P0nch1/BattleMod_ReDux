@@ -88,6 +88,7 @@ addHook("ThinkFrame",function()
 	for player in players.iterate do
 		B.PlayerThinkFrame(player)
 		F.UpdateCaps(player)
+		B.HummingTop_MainHook(player)
 	end
 	B.TitleTicker()
 	B.Autobalance()

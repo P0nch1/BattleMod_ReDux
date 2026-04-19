@@ -1,2 +1,3 @@
 name = sonic
-actionspd = 36
+actionspd = 40
+ability = CA_JUMPTHOK

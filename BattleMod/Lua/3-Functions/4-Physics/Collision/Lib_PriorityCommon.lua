@@ -55,6 +55,7 @@ B.Priority_Ability = function(player)
 	local attr = (shield==SH_ATTRACT)
 	
 	local sonicthokked = (abil1 == CA_THOK and thokked)
+	local sonichopped = (player.mo.hummingtop_state == 2)
 	local knuckles = (abil1 == CA_GLIDEANDCLIMB)
 	local flying = (abil1 ==CA_FLY and player.panim == PA_ABILITY)
 	local gliding = pflags&PF_GLIDING
@@ -91,6 +92,9 @@ B.Priority_Ability = function(player)
 		//Sonic
 		if spinjump and sonicthokked then
 			B.SetPriority(player,1,1,nil,1,1,"speed thok")
+		end
+		if sonichopped then
+			B.SetPriority(player,1,0,"amy_twirl",1,1,"humming top")
 		end
 		//Tails
 		if flying then
