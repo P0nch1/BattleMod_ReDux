@@ -1,4 +1,5 @@
 local B = CBW_Battle
+local S = B.SkinVars
 local cooldown = TICRATE * 2
 local cooldown2 = TICRATE * 5
 local duration = 3 * TICRATE
@@ -204,4 +205,20 @@ B.Action.Slide_Priority = function(player)
 	elseif player.actionstate == 2 then
 		B.SetPriority(player,0,1,nil,0,1,"fang slide")
 	end
+end
+
+B.Fang_SlideJump = function(player)
+	local mo = player.mo
+	if not (mo and mo.valid) then return end
+
+	local skin = S[mo.skin]
+
+	if skin.special ~= B.Action.Slide then print("doesnt work") return end
+	if player.actionstate ~= 2 then return end
+	if not P_IsObjectOnGround(mo) then return end
+
+	P_DoJump(player)
+	player.mo.state = S_PLAY_ROLL
+	player.pflags = $ & ~PF_NOJUMPDAMAGE
+	return true
 end
