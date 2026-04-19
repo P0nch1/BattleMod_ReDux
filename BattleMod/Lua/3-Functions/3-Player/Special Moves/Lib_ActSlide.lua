@@ -1,24 +1,41 @@
 local B = CBW_Battle
-local cooldown = TICRATE * 3
+local cooldown = TICRATE * 2
 local cooldown2 = TICRATE * 5
+local duration = 3 * TICRATE
 local xythrust = 38
 local zthrust = 9
 local dropspeed = 20
+local nojumpwindow = 10
 
-B.Action.CombatRoll = function(mo,doaction)
+B.Action.Slide_PlayerThink = function(mo)
 	local player = mo.player
 
-	//Conditions
+	local grounded = P_IsObjectOnGround(mo) or mo.eflags & MFE_JUSTHITFLOOR
 	local bouncing = player.pflags&PF_BOUNCING
 	local activate = player.actiontime == 0 and doaction == 1
 	local slide_trigger = activate and not(bouncing)
 	local springdrop_trigger = activate and bouncing
 	local drop_state = player.actionstate == 1 and bouncing
 		and P_MobjFlip(mo)*mo.momz < 0
-	local thrust_state = player.actiontime and mo.state == S_PLAY_ROLL
-		and not(P_IsObjectOnGround(mo)) and player.actiontime < 18
+	local sliding = player.actionstate == 2
+		and player.pflags & PF_SPINNING
 
+end
+
+B.Action.Slide = function(mo,doaction)
+	local player = mo.player
+
+	//Conditions
 	local grounded = P_IsObjectOnGround(mo) or mo.eflags & MFE_JUSTHITFLOOR
+	local bouncing = player.pflags&PF_BOUNCING
+	local activate = player.actiontime == 0 and doaction == 1
+	local slide_trigger = activate and not(bouncing)
+	local springdrop_trigger = activate and bouncing
+	local drop_state = player.actionstate == 1 and bouncing
+		and P_MobjFlip(mo)*mo.momz < 0
+	local sliding = player.actionstate == 2
+		and player.actiontime
+
 	//Properties
 	player.actiontext = "Slide"
 	player.actionrings = 5
@@ -29,29 +46,18 @@ B.Action.CombatRoll = function(mo,doaction)
 	
 	//Perform Thrust
 	if slide_trigger
-		//Apply cost, cooldown, state
+		-- thrust player forward
+		local speed = max(xythrust * mo.scale, FixedHypot(mo.momx - player.cmomx, mo.momy - player.cmomy) * 3 / 2)
+
 		B.PayRings(player)
+		B.ApplyCooldown(player, cooldown2)
+
+		P_InstaThrust(mo, mo.angle, speed)
+		player.pflags = ($|PF_SPINNING) & ~(PF_THOKKED|PF_JUMPED|PF_BOUNCING)
 		player.actionstate = 2
-		player.actiontime = 1
-		B.ApplyCooldown(player,cooldown)
-		player.drawangle = mo.angle
-		//Apply momentum
-		B.ZLaunch(mo,zthrust*FRACUNIT,false)
-		P_InstaThrust(mo,mo.angle,xythrust*mo.scale)
-		//Apply midair state
-		player.pflags = ($|PF_JUMPED) &~ (PF_NOJUMPDAMAGE|PF_THOKKED)
-		mo.state = S_PLAY_ROLL
-		player.airgun = false
-		//Do effects
-		S_StartSound(mo,sfx_zoom)
-		for n = 0,3
-			local dust = P_SpawnMobjFromMobj(mo,0,0,0,MT_SPINDUST)
-			local angle = (180+P_RandomRange(-60,60))*ANG1+mo.angle
-			local speed = mo.scale*P_RandomRange(5,10)
-			P_InstaThrust(dust,angle,speed)
-		end
-		player.noshieldactive = -1
-		return
+		player.actiontime = duration
+		player.lockjumpframe = nojumpwindow
+		mo.state = S_FANG_SLIDE
 	end
 	
  	//Perform spring drop
@@ -70,15 +76,11 @@ B.Action.CombatRoll = function(mo,doaction)
 		return
 	end
 	
-	if thrust_state
-		player.drawangle = mo.angle
-	end
-	
 	//Drop bombs
 	if player.actionstate == 1
 	and bouncing
 	and (mo.eflags & MFE_JUSTHITFLOOR)
-	B.ApplyCooldown(player,cooldown2)
+		B.ApplyCooldown(player,cooldown2)
 		player.nobombjump = true
 		for n = 0, 4
 			local bomb = B.throwbomb(mo)
@@ -91,16 +93,40 @@ B.Action.CombatRoll = function(mo,doaction)
 		end
 		player.actiontime = 0
 		player.actionstate = 0
-	end
-
-	//Reset state
-	if not(drop_state or thrust_state or (mo.eflags & MFE_SPRUNG))
+	elseif player.actionstate == 1
+	and not bouncing
+	or mo.eflags & MFE_SPRUNG then
 		player.actiontime = 0
 		player.actionstate = 0
-	else //Afterimage
-		player.actiontime = $+1
-		if player.actiontime%8
+	end
+
+	if sliding then
+		if grounded then
+			player.actiontime = $-1
+		end
+		if leveltime%8 then
+			print("ghost")
 			P_SpawnGhostMobj(mo)
+		end
+
+		if player.pflags & PF_JUMPED then
+			player.actionstate = 0
+			player.actiontime = 0
+			return
+		end
+
+		player.pflags = ($|PF_SPINNING) & ~(PF_THOKKED|PF_JUMPED|PF_BOUNCING)
+
+		if mo.eflags & MFE_JUSTHITFLOOR or mo.eflags & MFE_SPRUNG then
+			print("hit floor or sprung")
+			mo.state = S_FANG_SLIDE
+		end
+
+		if player.actiontime == 0 then
+			mo.state = S_PLAY_STND
+			mo.momx = $/2
+			mo.momy = $/2
+			player.actionstate = 0
 		end
 	end
 end
