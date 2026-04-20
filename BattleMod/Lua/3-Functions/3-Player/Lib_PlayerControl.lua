@@ -132,7 +132,7 @@ end
 
 B.ResetPlayerProperties = function(player,jumped,thokked)
 	local mo = player.mo
-	local skin = S[mo.skin] or S[-1]
+	local skin = (mo and mo.valid) and S[mo.skin] or S[-1]
 
 	if not(mo) then return end
 	if mo.eflags&MFE_SPRUNG
