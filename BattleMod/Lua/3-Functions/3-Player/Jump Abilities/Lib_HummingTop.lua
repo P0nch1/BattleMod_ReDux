@@ -96,6 +96,10 @@ function B.HummingTop_AbilitySpecial(player)
 			return
 		end
 
+		if player.gotflagdebuff then
+			return
+		end
+
 		if exhaust then
 			S_StartSound(player.mo, sfx_s3k8c)
 			S_StartSound(player.mo, sfx_pudpud)
@@ -186,10 +190,11 @@ function B.HummingTop_MainHook(player)
 		local flag = player.gotflagdebuff
 		local sprung = (player.mo.eflags & MFE_SPRUNG)
 		local exhaust = (player.exhaustmeter <= 0)
+		local tumble = player.tumble
 
 
 		
-		if grounded or hurt or dead or carry or gp or airdodge or ledge or exhaust then
+		if grounded or hurt or dead or carry or gp or airdodge or ledge or exhaust or flag or tumble then
 			
 			if player.mo.hummingtop_state == state_spinning then
 				S_StartSound(player.mo, sfx_cdfm17)
