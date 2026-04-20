@@ -22,6 +22,15 @@ B.Action.Slide = function(mo,doaction)
 	local sliding = player.actionstate == 2
 		and player.actiontime
 
+	-- hax
+	if mo._lastactionstate == 2
+	and player.actionstate == 0
+	and player.actiontime
+	and mo.eflags & MFE_SPRUNG then
+		print("uhuh")
+		player.actionstate = 2
+	end
+
 	//Properties
 	player.actiontext = "Slide"
 	player.actionrings = 5
@@ -119,6 +128,7 @@ B.Action.Slide = function(mo,doaction)
 		player.slidebouncex = mo.momx
 		player.slidebouncey = mo.momy
 		player.slidebouncez = abs(mo.momz)
+		mo.angle = player.drawangle
 
 		if player.actiontime == 0
 		or FixedHypot(mo.momx - player.cmomx, mo.momy - player.cmomy) < 4 * mo.scale
@@ -135,6 +145,7 @@ B.Action.Slide = function(mo,doaction)
 		-- for some reason this is being set to 9 upon spawn. why is it doing that
 		player.actiontime = 0
 	end
+	mo._lastactionstate = player.actionstate -- dumb hack to fix the sliding springing thingy
 end
 
 local function fanghop(player)
@@ -213,7 +224,7 @@ B.Fang_SlideJump = function(player)
 
 	local skin = S[mo.skin]
 
-	if skin.special ~= B.Action.Slide then print("doesnt work") return end
+	if skin.special ~= B.Action.Slide then return end
 	if player.actionstate ~= 2 then return end
 	if not P_IsObjectOnGround(mo) then return end
 

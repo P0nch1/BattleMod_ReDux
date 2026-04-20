@@ -1,6 +1,7 @@
 //Original scripts by TehRealSalt, modified by CobaltBW
 
 local B = CBW_Battle
+local S = B.SkinVars
 
 local refiretime = 18
 
@@ -92,14 +93,18 @@ end
 
 local function newGunslinger(player)
 	local mo = player.mo
+	local skin = S[mo.skin] or S[-1]
 	local onground = P_IsObjectOnGround(mo)
 	local canstand = true
+
+	local sliding = skin.special == B.Action.Slide
+		and player.actionstate == 2
 	
 	//State: ready to gunsling
 	if not ((player.pflags & (PF_SLIDING|PF_BOUNCING|PF_THOKKED)) or (player.exiting) or (P_PlayerInPain(player)))
 	and not (player.weapondelay)
 	and not (player.panim == PA_ABILITY2)
-	and (player.pflags&PF_JUMPED or onground)
+	and (player.pflags&PF_JUMPED or onground or sliding) then
 		-- Same code as vanilla, but without the clause for speed.
 		-- You naturally lose your speed via friction.
 		-- v10 EDIT: Now Fang automatically looks towards lockons
@@ -125,6 +130,12 @@ local function newGunslinger(player)
 		if not (player.cmd.buttons & BT_SPIN)
 		and (player.buttonhistory&BT_SPIN)
 			local bullet = nil
+
+			if sliding then
+				player.actionstate = 0
+				player.actiontime = 0
+				player.pflags = $ & ~PF_SPINNING
+			end
 
 			mo.state = S_PLAY_FIRE
 			player.panim = PA_ABILITY2
@@ -158,7 +169,7 @@ local function newGunslinger(player)
 
 			if (bullet and bullet.valid)
 				-- bullet.flags = $1 & ~MF_NOGRAVITY
-				local speed = max(35 * mo.scale, FixedHypot(mo.momx - player.cmomx, mo.momy - player.cmomy) * 6 / 4)
+				local speed = max(45 * mo.scale, FixedHypot(mo.momx - player.cmomx, mo.momy - player.cmomy) * 3 / 4)
 				local angle = R_PointToAngle2(0, 0, bullet.momx, bullet.momy)
 				local aiming = R_PointToAngle2(0, 0, FixedHypot(bullet.momx, bullet.momy), bullet.momz)
 
@@ -253,11 +264,15 @@ B.CustomGunslinger = function(player)
 		player.airgun = false
 	return end
 
+	local skin = S[player.mo.skin] or S[-1]
+	local sliding = skin.special == B.Action.Slide
+		and player.actionstate == 2
+
 	//Unable to use gun during certain states
 	if player.powers[pw_nocontrol]
 	or player.powers[pw_carry]
-	or player.actionstate
-	or player.pflags&PF_SPINNING
+	or (player.actionstate and not sliding)
+	or (player.pflags&PF_SPINNING and not sliding)
 		player.airgun = false
 	return end
 	//Get inputs
