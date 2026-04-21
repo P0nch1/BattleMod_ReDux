@@ -210,7 +210,7 @@ B.Fang_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thr
 		end
 
 		P_InstaThrust(mo[n2], angle[n2], -mo[n1].scale * 5)
-		B.ZLaunch(mo[n2], 13 * mo[n2].scale, false)
+		B.ZLaunch(mo[n2], 8 * mo[n2].scale, false)
 		return true
 	end
 end
