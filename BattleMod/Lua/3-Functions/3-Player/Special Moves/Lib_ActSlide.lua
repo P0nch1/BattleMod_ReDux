@@ -206,7 +206,7 @@ B.Fang_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thr
 		end
 
 		if plr[n2] then
-			B.DoPlayerTumble(plr[n2], 50, angle[n1], mo[n1].scale*3, true, true)
+			B.DoPlayerTumble(plr[n2], 50, angle[n1], mo[n1].scale*3, true, false)
 		end
 
 		P_InstaThrust(mo[n2], angle[n2], -mo[n1].scale * 5)
