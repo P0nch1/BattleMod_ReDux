@@ -90,7 +90,7 @@ B.Action.Slide = function(mo,doaction)
 	end
 
 	if sliding then
-		player.actionsuper = true
+		player.actionsuper = false
 
 		if grounded then
 			player.actiontime = $-1

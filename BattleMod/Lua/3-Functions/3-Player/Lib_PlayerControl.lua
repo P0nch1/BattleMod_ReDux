@@ -136,7 +136,7 @@ B.ResetPlayerProperties = function(player,jumped,thokked)
 
 	if not(mo) then return end
 	if mo.eflags&MFE_SPRUNG
-	and not (player.actionsuper == true and skin.special == B.Action.Slide and player.actionstate == 2) then -- HYPER SPECIFIC USECASE
+	and not (skin.special == B.Action.Slide and player.actionstate == 2) then -- HYPER SPECIFIC USECASE
 		player.actionstate = 0
 		player.actiontime = 0
 		player.mo.tics = 0
