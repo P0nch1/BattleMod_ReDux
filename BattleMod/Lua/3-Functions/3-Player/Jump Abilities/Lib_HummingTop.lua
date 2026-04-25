@@ -217,6 +217,8 @@ function B.HummingTop_MainHook(player)
 	
 		local mo = player.mo
 
+		local exhaust_chunk = ((G_GametypeUsesLives() and B.ArenaGametype()) and ((FRACUNIT/2)+(FRACUNIT/8))/2) or ((FRACUNIT/2)+(FRACUNIT/8))
+
 		local humming = (mo.hummingtop_state == state_spinning)
 		local grounded = P_IsObjectOnGround(mo) or (mo.eflags & MFE_JUSTHITFLOOR)
 		local hurt = P_PlayerInPain(player)
@@ -286,14 +288,11 @@ function B.HummingTop_MainHook(player)
 				cancelHummingTop(player, true)
 			end
 			if recurlable and spin and inexhausted and not(cancel) then
-				player.exhaustmeter = $-((FRACUNIT/2)+(FRACUNIT/8))
+				player.exhaustmeter = max(1, $-exhaust_chunk)
 				cancelHummingTop(player, false)
 				player.pflags = ($|PF_JUMPED) & ~(PF_NOJUMPDAMAGE|PF_SPINNING|PF_THOKKED)
 				S_StartSound(mo, sfx_zoom)
 				mo.state = S_PLAY_ROLL
-				if (player.exhaustmeter <= 0) then
-					player.exhaustmeter = 1
-				end
 				mo.dropdash_actionable = 0
 				mo.recurl_actionable = nil
 			end
@@ -862,7 +861,8 @@ local function DoWallBounce(mo,player,wallnormangle,walltype,side,reflect)
 	player.glidetime = ($>2 and 2) or 0
 	if not dropdash then
 		player.mo.recurl_actionable = true
-		player.exhaustmeter = $-((FRACUNIT/2)+(FRACUNIT/8))
+		local exhaust_chunk = ((G_GametypeUsesLives() and B.ArenaGametype()) and ((FRACUNIT/2)+(FRACUNIT/8))/2) or ((FRACUNIT/2)+(FRACUNIT/8))
+		player.exhaustmeter = max(0, $-exhaust_chunk)
 		if player.mo.hummingtop_arrow and player.mo.hummingtop_arrow.valid then
 			P_RemoveMobj(player.mo.hummingtop_arrow)
 			player.mo.hummingtop_arrow = nil
