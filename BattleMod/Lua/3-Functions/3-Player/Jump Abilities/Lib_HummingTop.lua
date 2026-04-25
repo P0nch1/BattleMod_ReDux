@@ -290,15 +290,18 @@ function B.HummingTop_MainHook(player)
 				cancelHummingTop(player, true)
 			end
 			if recurlable and spin and inexhausted and not(cancel) then
+				if B.Console.recurl_exhaust.value then
+					player.exhaustmeter = $-((FRACUNIT/2)+(FRACUNIT/8))
+				end
 				cancelHummingTop(player, false)
 				player.pflags = ($|PF_JUMPED) & ~(PF_NOJUMPDAMAGE|PF_SPINNING|PF_THOKKED)
 				S_StartSound(mo, sfx_zoom)
 				mo.state = S_PLAY_ROLL
+				if (player.exhaustmeter <= 0) then
+					player.exhaustmeter = 1
+				end
 				mo.dropdash_actionable = 0
 				mo.recurl_actionable = nil
-				if B.Console.recurl_exhaust.value then
-					player.exhaustmeter = $-((FRACUNIT/2)+(FRACUNIT/8))
-				end
 			end
 		end
 
@@ -431,6 +434,10 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 		local clash = (hurt == 3)
 
 		if not(clash) then
+			if plr[n1].exhaustmeter == 1 then --Is this the result of a final recurl?
+				cancelHummingTop(plr[n1])
+				cancelDropDash(mo[n1])
+			end
 			--Thrust sonic away
 			P_InstaThrust(mo[n1], angle[n1], (mo[n1].scale*10) / B.WaterFactor(mo[n1]))
 			B.ZLaunch(mo[n1], 7 * mo[n1].scale, false)
