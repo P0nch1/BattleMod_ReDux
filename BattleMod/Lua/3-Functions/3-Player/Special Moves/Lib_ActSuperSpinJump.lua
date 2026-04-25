@@ -90,6 +90,10 @@ B.Action.SuperSpinJump=function(mo,doaction)
 	local thrust
 	local jumpflags = (player.pflags|PF_JUMPED|PF_THOKKED)&~(PF_STARTJUMP|PF_NOJUMPDAMAGE|PF_GLIDING|PF_BOUNCING|PF_SPINNING)
 
+	if (player.glidetime > 2) and (player.glidetime <= (B.Console.HTop_Commit.value)+2)  then
+		player.canguard = false
+	end
+
 	//Neutral
 	if player.actionstate == 0
 		player.squashstretch = 0

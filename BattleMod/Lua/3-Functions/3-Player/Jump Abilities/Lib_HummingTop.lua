@@ -203,7 +203,8 @@ local function cancelHummingTop(player, sound)
 	player.mo.hummingtop_angle = nil
 	player.mo.hummingtop_drawangle = nil
 	player.glidetime = 0
-	
+	player.pflags = $ & ~PF_STASIS
+	S_StopSoundByID(player.mo, sfx_htop)
 end
 
 local function cancelDropDash(mo)
@@ -392,12 +393,10 @@ function B.HummingTop_MainHook(player)
 			end
 			
 			if (player.glidetime > 2) and (player.glidetime <= (B.Console.HTop_Commit.value)+2) then
-				player.powers[pw_nocontrol] = max($, 2)
+				player.pflags = $|PF_STASIS
 				mo.momz = 0
-				player.cmd.buttons = player.realbuttons
 				player.cmd.angleturn = player.realangleturn
 				player.glidetime = $-1
-				player.canguard = false
 			elseif player.glidetime == 2 then
 				B.SpawnFlash(mo, 10, false)
 				if mo.hummingtop_overlay and mo.hummingtop_overlay.valid then
@@ -407,6 +406,7 @@ function B.HummingTop_MainHook(player)
 				end
 				S_StartSound(mo, sfx_s3k42)
 				player.glidetime = 0
+				player.pflags = $ & ~PF_STASIS
 			end
 		end
 	end
