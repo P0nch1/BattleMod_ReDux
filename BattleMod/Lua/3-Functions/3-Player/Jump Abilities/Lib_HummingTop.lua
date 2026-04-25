@@ -278,43 +278,35 @@ function B.Sonic_PreCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,t
 	end
 end
 
-
-function B.Sonic_Collide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
-	if not(plr[n1] and mo[n1] and mo[n1].valid and mo[n1].hummingtop_marker) then
-		return false
-	end
-
-	local sonic_xyspeed = mo[n1].hummingtop_marker.xyspeed
-
-
-	local bump = (hurt == 0)
-	local hit = (hurt == 1)
-	local clash = (hurt == 3)
-
-	if not(clash) then
-		--Thrust sonic away
-		P_InstaThrust(mo[n1], angle[n1], (mo[n1].scale*10) / B.WaterFactor(mo[n1]))
-		B.ZLaunch(mo[n1], 7 * mo[n1].scale, false)
-		--Bump opponent away at our current speed (will probably adjust later)
-		if plr[n2].playerstate == PST_LIVE then
-			P_InstaThrust(mo[n2], angle[n2], sonic_xyspeed/2)
-		end
-
-		plr[n1].glidetime = 2 --Commit time ends
-
-		collisiontype = (bump and 1) or 3
-		return true
-	else
-		--Normal interaction
-		collisiontype = 3
-		return true
-	end
-end
-
-
 function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
 	if plr[n1] and mo[n1] and mo[n1].valid and mo[n1].hummingtop_marker then
+
+		local sonic_xyspeed = mo[n1].hummingtop_marker.xyspeed
 		mo[n1].hummingtop_marker = nil
+
+
+		local bump = (hurt == 0)
+		local hit = (hurt == 1)
+		local clash = (hurt == 3)
+
+		if not(clash) then
+			--Thrust sonic away
+			P_InstaThrust(mo[n1], angle[n1], (mo[n1].scale*10) / B.WaterFactor(mo[n1]))
+			B.ZLaunch(mo[n1], 7 * mo[n1].scale, false)
+			--Bump opponent away at our current speed (will probably adjust later)
+			if plr[n2].playerstate == PST_LIVE then
+				P_InstaThrust(mo[n2], angle[n2], sonic_xyspeed/3)
+			end
+
+			plr[n1].glidetime = 2 --Commit time ends
+
+			collisiontype = (bump and 1) or 3
+			return
+		else
+			--Normal interaction
+			collisiontype = 3
+			return
+		end
 	end
 end
 		
