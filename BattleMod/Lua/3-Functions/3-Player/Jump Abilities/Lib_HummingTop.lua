@@ -292,9 +292,7 @@ function B.HummingTop_MainHook(player)
 				cancelHummingTop(player, true)
 			end
 			if recurlable and spin and inexhausted and not(cancel) then
-				if B.Console.recurl_exhaust.value then
-					player.exhaustmeter = $-((FRACUNIT/2)+(FRACUNIT/8))
-				end
+				player.exhaustmeter = $-((FRACUNIT/2)+(FRACUNIT/8))
 				cancelHummingTop(player, false)
 				player.pflags = ($|PF_JUMPED) & ~(PF_NOJUMPDAMAGE|PF_SPINNING|PF_THOKKED)
 				S_StartSound(mo, sfx_zoom)
