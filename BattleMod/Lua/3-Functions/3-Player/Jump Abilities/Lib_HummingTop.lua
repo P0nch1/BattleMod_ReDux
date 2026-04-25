@@ -9,6 +9,12 @@ B.Console.HTop_Commit = CV_RegisterVar({
 	PossibleValue = CV_Natural
 })
 
+B.Console.recurl_exhaust = CV_RegisterVar({
+	name = "recurl_exhaust",
+	defaultvalue = "On",
+	flags = CV_NETVAR|CV_SHOWMODIF,
+	PossibleValue = CV_OnOff
+})
 
 local COMMIT_TIME = 10
 local ZTHRUST = 7
@@ -290,7 +296,9 @@ function B.HummingTop_MainHook(player)
 				mo.state = S_PLAY_ROLL
 				mo.dropdash_actionable = 0
 				mo.recurl_actionable = nil
-				player.exhaustmeter = $-((FRACUNIT/2)+(FRACUNIT/8))
+				if B.Console.recurl_exhaust.value then
+					player.exhaustmeter = $-((FRACUNIT/2)+(FRACUNIT/8))
+				end
 			end
 		end
 
