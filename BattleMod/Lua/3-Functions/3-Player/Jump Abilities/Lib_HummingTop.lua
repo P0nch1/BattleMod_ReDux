@@ -284,6 +284,7 @@ function B.HummingTop_MainHook(player)
 				end
 			end
 			cancelDropDash(mo)
+			mo.recurl_actionable = nil
 		end
 
 		if humming then
