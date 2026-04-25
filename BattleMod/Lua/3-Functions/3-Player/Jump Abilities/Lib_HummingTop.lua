@@ -9,12 +9,6 @@ B.Console.HTop_Commit = CV_RegisterVar({
 	PossibleValue = CV_Natural
 })
 
-B.Console.recurl_exhaust = CV_RegisterVar({
-	name = "recurl_exhaust",
-	defaultvalue = "On",
-	flags = CV_NETVAR|CV_SHOWMODIF,
-	PossibleValue = CV_OnOff
-})
 
 local COMMIT_TIME = 10
 local ZTHRUST = 7
