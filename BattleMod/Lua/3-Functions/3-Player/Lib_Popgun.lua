@@ -99,7 +99,12 @@ local function newGunslinger(player)
 
 	local sliding = skin.special == B.Action.Slide
 		and player.actionstate == 2
-	
+
+	if mo._slinger_reticle
+	and not mo._slinger_reticle.valid then
+		mo._slinger_reticle = nil
+	end
+
 	//State: ready to gunsling
 	if not ((player.pflags & (PF_SLIDING|PF_BOUNCING|PF_THOKKED)) or (player.exiting) or (P_PlayerInPain(player)))
 	and not (player.weapondelay)
@@ -117,7 +122,35 @@ local function newGunslinger(player)
 
 			if (lockon and lockon.valid) then
 				player.drawangle = R_PointToAngle2(mo.x, mo.y, lockon.x, lockon.y)
-				P_SpawnLockOn(player, lockon, mobjinfo[MT_LOCKON].spawnstate)
+				-- P_SpawnLockOn(player, lockon, mobjinfo[MT_LOCKON].spawnstate)
+
+				-- yknow, i COULD do this better, but nah, lets go the easiest (and stupidest) way.
+				if not mo._slinger_reticle
+				or mo._slinger_reticle.target ~= lockon then
+					if mo._slinger_reticle then
+						P_RemoveMobj(mo._slinger_reticle)
+					end
+					mo._slinger_reticle = P_SpawnMobjFromMobj(lockon, 0,0,0, MT_FANGRETICLE)
+					mo._slinger_reticle.alpha = 0
+					mo._slinger_reticle.scale = lockon.destscale * 2
+
+					for _, mobj in ipairs({mo, lockon}) do -- cheap i know
+						S_StartSoundAtVolume(mobj, sfx_cdfm42, 60)
+						S_StartSoundAtVolume(mobj, sfx_cdfm40, 30)
+						S_StartSoundAtVolume(mobj, sfx_cdfm13, 80)
+						S_StartSoundAtVolume(mobj, sfx_fn_trg, 100)
+					end
+				end
+
+				local reticle = mo._slinger_reticle
+
+				P_MoveOrigin(reticle, lockon.x, lockon.y, lockon.z)
+				reticle.fuse = 2
+				reticle.target = lockon
+				reticle.color = ColorOpposite(mo.color)
+				reticle.pointcolor = mo.color
+				mo._slinger_reticle.scale = ease.linear(FU/3, $, lockon.destscale)
+				reticle.alpha = min(FU, $ + FU / 4)
 			end
 		end
 
@@ -165,6 +198,9 @@ local function newGunslinger(player)
 					player.revitem,
 					mo.x, mo.y, zpos(mo, player.revitem)
 				)
+				if bullet and bullet.valid then
+					bullet.flags = $ & ~MF_NOGRAVITY
+				end
 			end
 
 			if (bullet and bullet.valid)
@@ -178,7 +214,7 @@ local function newGunslinger(player)
 				if (lockon and lockon.valid) then
 					bullet.momz = FixedMul(speed, sin(aiming))
 				else
-					bullet.momz = 0
+					bullet.momz = 3 * bullet.scale
 				end
 			end
 

@@ -142,9 +142,30 @@ B.Action.Slide = function(mo,doaction)
 		if player.actiontime == 0
 		or FixedHypot(mo.momx - player.cmomx, mo.momy - player.cmomy) < 4 * mo.scale
 		or player.powers[pw_carry] then
-			mo.state = S_PLAY_STND
+			if P_IsObjectOnGround(mo) then
+				mo.state = S_PLAY_STND
+			else
+				mo.state = S_PLAY_FALL
+			end
+
 			mo.momx = $/2
 			mo.momy = $/2
+
+			player.pflags = $ & ~PF_SPINNING
+			player.actionstate = 0
+			player.actionsuper = false
+			B.ApplyCooldown(player, cooldown)
+			return
+		end
+
+		if player.cmd.buttons & BT_FIRENORMAL
+		and player.lastbuttons & BT_FIRENORMAL == 0 then
+			if P_IsObjectOnGround(mo) then
+				mo.state = S_PLAY_STND
+			else
+				mo.state = S_PLAY_FALL
+			end
+
 			player.pflags = $ & ~PF_SPINNING
 			player.actionstate = 0
 			player.actionsuper = false

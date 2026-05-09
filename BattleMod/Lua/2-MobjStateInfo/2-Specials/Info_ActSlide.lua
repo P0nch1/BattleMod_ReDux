@@ -6,8 +6,17 @@ freeslot(
 	's_fang_slide',
 	'spr_cbom',
 	's_colorbomb1',
-	's_colorbomb2'
+	's_colorbomb2',
+
+	-- hi saxa here
+	'mt_fangreticle',
+	's_fangreticle_circle',
+	's_fangreticle_point',
+	'spr_fang_reticle',
+	'sfx_fn_trg'
 )
+
+sfxinfo[sfx_fn_trg].caption = "Clocked back gun"
 
 states[S_FANG_SLIDE] = {
 	sprite = SPR_PLAY,
@@ -70,3 +79,71 @@ states[S_FBOMB_EXPL2] = {
 	tics = 2,
 	nextstate = S_FBOMB_EXPL3
 }
+
+// the RETICLEEEEEE
+mobjinfo[MT_FANGRETICLE] = {
+	radius = FU,
+	height = FU,
+	flags = MF_NOCLIP|MF_NOCLIPHEIGHT|MF_NOGRAVITY|MF_NOBLOCKMAP,
+	spawnstate = S_FANGRETICLE_CIRCLE,
+	dispoffset = 1
+}
+
+states[S_FANGRETICLE_CIRCLE] = {
+	sprite = SPR_FANG_RETICLE,
+	frame = A|FF_FULLBRIGHT,
+	tics = -1
+}
+
+states[S_FANGRETICLE_POINT] = {
+	sprite = SPR_FANG_RETICLE,
+	frame = B|FF_FULLBRIGHT,
+	tics = -1
+}
+
+local reticles = {} -- a bit of a hack to manage it better
+
+local function _managePoint(reticle)
+	if not reticle.point
+	or not reticle.point.valid then
+		reticle.point = P_SpawnMobjFromMobj(reticle, 0,0,0, MT_THOK)
+		reticle.point.fuse = -1
+		reticle.point.tics = -1
+		reticle.point.state = S_FANGRETICLE_POINT
+	end
+
+	P_MoveOrigin(reticle.point, reticle.x, reticle.y, reticle.z)
+	reticle.point.dispoffset = reticle.dispoffset+1 -- always display higher
+	reticle.point.scale = reticle.scale
+	reticle.point.spriteroll = (leveltime * 4) * ANG1
+	reticle.point.frame = (reticle.frame & ~FF_FRAMEMASK)|(reticle.point.frame & FF_FRAMEMASK)
+	reticle.point.alpha = reticle.alpha
+	reticle.point.color = reticle.pointcolor
+end
+
+addHook("MobjSpawn", function(reticle)
+	reticle.pointcolor = reticle.color
+	_managePoint(reticle)
+	table.insert(reticles, reticle)
+end, MT_FANGRETICLE)
+
+addHook("PostThinkFrame", function()
+	for i = 1, #reticles do
+		local reticle = reticles[i]
+
+		if not reticle
+		or not reticle.valid then
+			table.remove(reticles, i)
+			continue
+		end
+
+		_managePoint(reticle)
+	end
+end)
+
+addHook("MobjRemoved", function(reticle)
+	if reticle.point and reticle.point.valid then
+		P_RemoveMobj(reticle.point)
+		reticle.point = nil
+	end
+end, MT_FANGRETICLE)
