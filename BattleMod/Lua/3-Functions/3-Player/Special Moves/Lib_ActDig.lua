@@ -16,7 +16,7 @@ B.Action.Dig_Priority = function(player)
 		B.SetPriority(player,1,0,"fang_springdrop",2,1,"drill dive")
 	end
 	if player.actionstate == state_rising then
-		B.SetPriority(player,0,2,"tails_fly",0,2,"rising drill")
+		B.SetPriority(player,0,2,"tails_fly",0,2,"Knuckle Buster")
 	end
 end
 
