@@ -80,7 +80,7 @@ S["amy"] = {
 }
 S["fang"] = {
 	flags = SKINVARS_GUARD|SKINVARS_NOSPINSHIELD|SKINVARS_GUNSLINGER,
-	weight = 100,
+	weight = 90,
 	special = Act.Slide,
 	guard_frame = 1,
 	func_priority_ext = Act.Slide_Priority,
