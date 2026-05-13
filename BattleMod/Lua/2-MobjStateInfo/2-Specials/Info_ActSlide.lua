@@ -4,6 +4,7 @@ freeslot(
 	's_fangchar_lob2',
 	's_fangchar_lob3',
 	's_fang_slide',
+	's_fang_springdrop',
 	'spr_cbom',
 	's_colorbomb1',
 	's_colorbomb2',
@@ -17,6 +18,15 @@ freeslot(
 )
 
 sfxinfo[sfx_fn_trg].caption = "Clocked back gun"
+
+states[S_FANG_SPRINGDROP] = {
+	sprite = SPR_PLAY,
+	frame = SPR2_LAND|A,
+	tics = -1,
+	var2 = PF_BOUNCING,
+	nextstate = S_FANG_SPRINGDROP,
+	action = function(mo) mo.player.panim = PA_ABILITY end
+}
 
 states[S_FANG_SLIDE] = {
 	sprite = SPR_PLAY,

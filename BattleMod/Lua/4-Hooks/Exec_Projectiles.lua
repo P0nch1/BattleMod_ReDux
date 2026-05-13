@@ -286,7 +286,7 @@ addHook("MobjSpawn",function(mo)
 		mo.blockable = 1
 		mo.block_stun = 5
 		--mo.block_sound = sfx_s3kb5
-		mo.block_hthrust = 12
+		mo.block_hthrust = 3
 		mo.block_vthrust = 10
 		mo.spawnfire = true
 	end
@@ -298,13 +298,17 @@ addHook("MobjThinker",function(mo)
 		ghost.fuse = TICRATE/4
 		ghost.state = mo.state
 		ghost.sprite = mo.sprite
-		ghost.frame =  mo.frame
+		ghost.frame = mo.frame
 		ghost.frame = $|TR_TRANS50 
 		ghost.tics = -1
 		ghost.destscale = ghost.scale*4
 		if not(gametyperules&GTR_FRIENDLY)
 			ghost.colorized = true
 			ghost.color = mo.target.player.skincolor
+		end
+		mo.corktime = (mo.corktime or 0)+1
+		if mo.corktime >= TICRATE then
+			mo.flags = $&~MF_NOGRAVITY
 		end
 	end
 end,MT_CORK)

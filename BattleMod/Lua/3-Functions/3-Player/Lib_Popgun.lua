@@ -3,7 +3,7 @@
 local B = CBW_Battle
 local S = B.SkinVars
 
-local refiretime = 18
+local refiretime = 22
 
 B.NewGunLook = function(player)
 	local twod = (twodlevel or player.mo.flags2 & MF2_TWOD)
@@ -106,10 +106,11 @@ local function newGunslinger(player)
 	end
 
 	//State: ready to gunsling
-	if not ((player.pflags & (PF_SLIDING|PF_BOUNCING|PF_THOKKED)) or (player.exiting) or (P_PlayerInPain(player)))
+	if not ((player.pflags&PF_SLIDING) or (player.exiting) or (P_PlayerInPain(player)))
 	and not (player.weapondelay)
 	and not (player.panim == PA_ABILITY2)
-	and (player.pflags&PF_JUMPED or onground or sliding) then
+	and not (player.airgun)
+	and (player.pflags&PF_JUMPED or onground or sliding or player.pflags&PF_BOUNCING) then
 		-- Same code as vanilla, but without the clause for speed.
 		-- You naturally lose your speed via friction.
 		-- v10 EDIT: Now Fang automatically looks towards lockons
@@ -154,7 +155,7 @@ local function newGunslinger(player)
 			end
 		end
 
-		if player.cmd.buttons & BT_SPIN then
+		if player.cmd.buttons & BT_SPIN and not(player.pflags&PF_BOUNCING) then
 			player.gunheld = $ + 1
 		else
 			player.gunheld = 0
@@ -162,11 +163,13 @@ local function newGunslinger(player)
 		//Trigger firing action
 		if not (player.cmd.buttons & BT_SPIN)
 		and (player.buttonhistory&BT_SPIN)
+		or (player.pflags&PF_BOUNCING and player.cmd.buttons&BT_SPIN and not(player.buttonhistory&BT_SPIN))
 			local bullet = nil
 
 			if sliding then
 				player.actionstate = 0
 				player.actiontime = 0
+				B.ApplyCooldown(player, TICRATE*3)
 				player.pflags = $ & ~PF_SPINNING
 			end
 
@@ -198,37 +201,49 @@ local function newGunslinger(player)
 					player.revitem,
 					mo.x, mo.y, zpos(mo, player.revitem)
 				)
-				if bullet and bullet.valid then
-					bullet.flags = $ & ~MF_NOGRAVITY
-				end
+				//if bullet and bullet.valid then
+				//	bullet.flags = $ & ~MF_NOGRAVITY
+				//end
 			end
 
 			if (bullet and bullet.valid)
 				-- bullet.flags = $1 & ~MF_NOGRAVITY
-				local speed = max(45 * mo.scale, FixedHypot(mo.momx - player.cmomx, mo.momy - player.cmomy) * 3 / 4)
+				local speed = max(46 * mo.scale, FixedHypot(mo.momx - player.cmomx, mo.momy - player.cmomy) * 3 / 4)
 				local angle = R_PointToAngle2(0, 0, bullet.momx, bullet.momy)
 				local aiming = R_PointToAngle2(0, 0, FixedHypot(bullet.momx, bullet.momy), bullet.momz)
 
 				bullet.momx = P_ReturnThrustX(nil, angle, FixedMul(speed, cos(aiming)))
 				bullet.momy = P_ReturnThrustY(nil, angle, FixedMul(speed, cos(aiming)))
-				if (lockon and lockon.valid) then
-					bullet.momz = FixedMul(speed, sin(aiming))
-				else
-					bullet.momz = 3 * bullet.scale
-				end
+				if P_MobjFlip(mo) < 0 and not (lockon and lockon.valid) then
+				    bullet.momz = 0
+			    else
+				    bullet.momz = FixedMul(speed, sin(aiming))
+			    end
+				//if (lockon and lockon.valid) then
+				//	bullet.momz = FixedMul(speed, sin(aiming))
+				//else
+				//	bullet.momz = 3 * bullet.scale
+				//end
 			end
 
 			player.drawangle = mo.angle
 			//Air function
 			if not(P_IsObjectOnGround(mo))
+			and not(player.pflags&PF_BOUNCING)
 				B.ResetPlayerProperties(player,false,true)
-				//P_Thrust(mo,mo.angle+ANGLE_180,mo.scale*10)
-				//P_SetObjectMomZ(mo,FRACUNIT*5,true)
+				P_Thrust(mo,mo.angle+ANGLE_180,mo.scale*10)
+				P_SetObjectMomZ(mo,FRACUNIT*5,true)
+				mo.momx = $/2
+				mo.momy = $/2
+				mo.momz = $/2
+				player.airgun = true
+				B.DrawSVSprite(player,1)
+			//Tailbounce function
+			elseif (player.pflags&PF_BOUNCING)
 				//mo.momx = $/2
 				//mo.momy = $/2
-				//mo.momz = $/2
-				mo.state = S_PLAY_MELEE
 				player.airgun = true
+				B.DrawSVSprite(player,5)
 			else
 				P_Thrust(mo,mo.angle+ANGLE_180,mo.scale*3)
 			end
@@ -266,26 +281,40 @@ local function newGunslinger(player)
 		mo.state = S_PLAY_WALK
 	end
 	
-	//Air gunning
+    //Air gunning
 	if not(P_IsObjectOnGround(mo)) and player.airgun == true and player.weapondelay
+	and not(player.pflags & PF_BOUNCING)
 		player.drawangle = mo.angle
--- 		print(mo.state,B.GetSVSprite(player,1),B.GetSVSprite(player,2),player.weapondelay)
--- 		if mo.state == B.GetSVSprite(player,1)
-		if player.weapondelay < refiretime-1 and player.weapondelay > refiretime-3
-			--B.DrawSVSprite(player,2)
--- 		elseif mo.state == B.GetSVSprite(player,2)
-		elseif player.weapondelay < refiretime-4
-			--B.DrawSVSprite(player,1)
+		if player.weapondelay > refiretime-2
+			B.DrawSVSprite(player,1)
+		elseif player.weapondelay > refiretime-4
+			B.DrawSVSprite(player,2)
+		elseif player.weapondelay > refiretime-6
+			B.DrawSVSprite(player,3)
+		elseif player.weapondelay > refiretime-8
+			B.DrawSVSprite(player,4)
+		elseif player.weapondelay < refiretime-20 and player.weapondelay > (refiretime)-(refiretime)
+			mo.state = S_PLAY_FALL
 		end
--- 		if mo.state == B.GetSVSprite(player,1) or mo.state == B.GetSVSprite(player,2)
-			player.pflags = $|PF_JUMPDOWN
--- 		end
-	end	
+	end
+	
 	if P_IsObjectOnGround(mo) and player.airgun == true
 		player.airgun = false
 		if (player.weapondelay) then
-			player.weapondelay = 0
-			mo.state = S_PLAY_STND
+			mo.state = S_PLAY_FIRE_FINISH
+			mo.tics = player.weapondelay
+		end
+	end
+	
+    //Tailbounce gunning
+	if (player.pflags&PF_BOUNCING) and player.airgun == true and player.weapondelay
+		player.drawangle = mo.angle
+		if player.weapondelay < refiretime-1 and player.weapondelay > refiretime-3
+			B.DrawSVSprite(player,6)
+		elseif player.weapondelay < refiretime-4 and player.weapondelay > refiretime-6
+			B.DrawSVSprite(player,5)
+		elseif player.weapondelay < refiretime-20 and player.weapondelay > (refiretime)-(refiretime)
+			mo.state = S_PLAY_BOUNCE
 		end
 	end
 end
@@ -319,7 +348,19 @@ B.CustomGunslinger = function(player)
 	if (player.gunheld == nil)
 		player.gunheld = 0
 	end
-
+	
+    //Airgun resets on tailbounce
+	if (player.pflags&PF_BOUNCING)
+		if player.premomz < 0 and player.mo.momz > 0
+			if player.airgun == true
+				player.airgun = false
+			end
+		end
+		player.premomz = player.mo.momz
+	else
+		player.premomz = 0
+	end
+	
 	//Do Gunslinger
 	newGunslinger(player)
 end
@@ -338,6 +379,3 @@ B.PreGunslinging = function(player)
 	end
 -- 	player.cmd.buttons = $&~BT_JUMP
 end
-		
-
-
