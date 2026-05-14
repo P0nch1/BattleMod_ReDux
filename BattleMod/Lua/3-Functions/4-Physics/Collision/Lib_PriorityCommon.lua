@@ -122,7 +122,7 @@ B.Priority_Ability = function(player)
 		end
 		//Fang
 		if tailbounce then
-			player.powers[pw_strong] = STR_ANIM|STR_STOMP
+			player.powers[pw_strong] = STR_BOUNCE
 			B.SetPriority(player,0,0,"fang_tailbounce",2,3,"tail bounce")
 		end
 		//Metal
