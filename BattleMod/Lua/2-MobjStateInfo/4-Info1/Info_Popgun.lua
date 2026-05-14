@@ -4,39 +4,28 @@ freeslot(
     "spr_fair",
     "spr_bgun",
 	"s_fang_airshot",
-	"s_fang_airshot1",
-	"s_fang_airshot2",
-	"s_fang_airshot3",
-	"s_fang_bceshot",
-	"s_fang_bceshot1"
+	"s_fang_bceshot"
 )
 states[S_FANG_AIRSHOT] = {
 	sprite = SPR_FAIR,
 	frame = A,
-	nextstate = S_FANG_AIRSHOT1
-}
-states[S_FANG_AIRSHOT1] = {
-	sprite = SPR_FAIR,
-	frame = B,
-	nextstate = S_FANG_AIRSHOT2
-}
-states[S_FANG_AIRSHOT2] = {
-	sprite = SPR_FAIR,
-	frame = C,
-	nextstate = S_FANG_AIRSHOT3
-}
-states[S_FANG_AIRSHOT3] = {
-	sprite = SPR_FAIR,
-	frame = D,
-	nextstate = S_FANG_AIRSHOT3
+	tics = 2,
+	nextstate = S_FANG_AIRSHOT,
+	action = function(mo)
+		local frame = mo.frame & FF_FRAMEMASK
+		local frames = skins[mo.skin].sprites[mo.sprite2 & FF_FRAMEMASK].numframes
+	
+		print("active")
+		print(frame)
+		if frame == frames - 1 then
+			-- we hit the limit, don't loop the animation
+			mo.tics = mo.player.weapondelay or 0
+			print("limit")
+		end
+	end
 }
 states[S_FANG_BCESHOT] = {
         sprite = SPR_BGUN,
         frame = A,
-		nextstate = S_FANG_BCESHOT1,
-}
-states[S_FANG_BCESHOT1] = {
-        sprite = SPR_BGUN,
-        frame = B,
 		nextstate = S_FANG_BCESHOT,
 }

@@ -89,11 +89,7 @@ S["fang"] = {
 	func_postcollide = B.Fang_PostCollide,
 	sprites = {
 		S_FANG_AIRSHOT,
-	    S_FANG_AIRSHOT1,
-	    S_FANG_AIRSHOT2,
-	    S_FANG_AIRSHOT3,
-	    S_FANG_BCESHOT,
-	    S_FANG_BCESHOT1
+	    S_FANG_BCESHOT
 	}	
 }
 S["metalsonic"] = {

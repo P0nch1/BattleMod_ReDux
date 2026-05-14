@@ -243,7 +243,7 @@ local function newGunslinger(player)
 				//mo.momx = $/2
 				//mo.momy = $/2
 				player.airgun = true
-				B.DrawSVSprite(player,5)
+				B.DrawSVSprite(player,2)
 			else
 				P_Thrust(mo,mo.angle+ANGLE_180,mo.scale*3)
 			end
@@ -285,15 +285,17 @@ local function newGunslinger(player)
 	if not(P_IsObjectOnGround(mo)) and player.airgun == true and player.weapondelay
 	and not(player.pflags & PF_BOUNCING)
 		player.drawangle = mo.angle
-		if player.weapondelay > refiretime-2
-			B.DrawSVSprite(player,1)
-		elseif player.weapondelay > refiretime-4
-			B.DrawSVSprite(player,2)
-		elseif player.weapondelay > refiretime-6
-			B.DrawSVSprite(player,3)
-		elseif player.weapondelay > refiretime-8
-			B.DrawSVSprite(player,4)
-		elseif player.weapondelay < refiretime-20 and player.weapondelay > (refiretime)-(refiretime)
+		-- this code fucking sucks :(
+		-- if player.weapondelay > refiretime-2
+		-- 	B.DrawSVSprite(player,1)
+		-- elseif player.weapondelay > refiretime-4
+		-- 	B.DrawSVSprite(player,2)
+		-- elseif player.weapondelay > refiretime-6
+		-- 	B.DrawSVSprite(player,3)
+		-- elseif player.weapondelay > refiretime-8
+		-- 	B.DrawSVSprite(player,4)
+		-- else
+		if player.weapondelay < refiretime-20 and player.weapondelay > (refiretime)-(refiretime)
 			mo.state = S_PLAY_FALL
 		end
 	end
@@ -309,11 +311,12 @@ local function newGunslinger(player)
     //Tailbounce gunning
 	if (player.pflags&PF_BOUNCING) and player.airgun == true and player.weapondelay
 		player.drawangle = mo.angle
-		if player.weapondelay < refiretime-1 and player.weapondelay > refiretime-3
-			B.DrawSVSprite(player,6)
-		elseif player.weapondelay < refiretime-4 and player.weapondelay > refiretime-6
-			B.DrawSVSprite(player,5)
-		elseif player.weapondelay < refiretime-20 and player.weapondelay > (refiretime)-(refiretime)
+		-- if player.weapondelay < refiretime-1 and player.weapondelay > refiretime-3
+		-- 	B.DrawSVSprite(player,6)
+		-- elseif player.weapondelay < refiretime-4 and player.weapondelay > refiretime-6
+		-- 	B.DrawSVSprite(player,5)
+		-- else
+		if player.weapondelay < refiretime-20 and player.weapondelay > (refiretime)-(refiretime)
 			mo.state = S_PLAY_BOUNCE
 		end
 	end
