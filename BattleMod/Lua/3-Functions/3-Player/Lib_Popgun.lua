@@ -176,6 +176,7 @@ local function newGunslinger(player)
 			mo.state = S_PLAY_FIRE
 			player.panim = PA_ABILITY2
 			player.weapondelay = refiretime
+			player.shotangle = mo.angle
 			mo.momx = $ * 3/4
 			mo.momy = $ * 3/4
 			S_StartSoundAtVolume(mo,sfx_s1c4,150)
@@ -214,18 +215,13 @@ local function newGunslinger(player)
 
 				bullet.momx = P_ReturnThrustX(nil, angle, FixedMul(speed, cos(aiming)))
 				bullet.momy = P_ReturnThrustY(nil, angle, FixedMul(speed, cos(aiming)))
-				if P_MobjFlip(mo) < 0 and not (lockon and lockon.valid) then
-				    bullet.momz = 0
-			    else
+				if (lockon and lockon.valid) then
 				    bullet.momz = FixedMul(speed, sin(aiming))
+			    else
+				    bullet.momz = 0
 			    end
-				//if (lockon and lockon.valid) then
-				//	bullet.momz = FixedMul(speed, sin(aiming))
-				//else
-				//	bullet.momz = 3 * bullet.scale
-				//end
 			end
-
+			
 			player.drawangle = mo.angle
 			//Air function
 			if not(P_IsObjectOnGround(mo))
@@ -236,14 +232,14 @@ local function newGunslinger(player)
 				mo.momx = $/2
 				mo.momy = $/2
 				mo.momz = $/2
+				mo.state = S_FANG_AIRSHOT
 				player.airgun = true
-				B.DrawSVSprite(player,1)
 			//Tailbounce function
 			elseif (player.pflags&PF_BOUNCING)
-				//mo.momx = $/2
-				//mo.momy = $/2
+				mo.momx = $/2
+				mo.momy = $/2
+				mo.state = S_FANG_BCESHOT
 				player.airgun = true
-				B.DrawSVSprite(player,2)
 			else
 				P_Thrust(mo,mo.angle+ANGLE_180,mo.scale*3)
 			end
@@ -284,19 +280,11 @@ local function newGunslinger(player)
     //Air gunning
 	if not(P_IsObjectOnGround(mo)) and player.airgun == true and player.weapondelay
 	and not(player.pflags & PF_BOUNCING)
-		player.drawangle = mo.angle
-		-- this code fucking sucks :(
-		-- if player.weapondelay > refiretime-2
-		-- 	B.DrawSVSprite(player,1)
-		-- elseif player.weapondelay > refiretime-4
-		-- 	B.DrawSVSprite(player,2)
-		-- elseif player.weapondelay > refiretime-6
-		-- 	B.DrawSVSprite(player,3)
-		-- elseif player.weapondelay > refiretime-8
-		-- 	B.DrawSVSprite(player,4)
-		-- else
-		if player.weapondelay < refiretime-20 and player.weapondelay > (refiretime)-(refiretime)
-			mo.state = S_PLAY_FALL
+	    if mo.state == S_PLAY_FALL
+	        mo.state = S_FANG_AIRSHOT_FINISH
+		end
+	    if mo.state == S_FANG_AIRSHOT_FINISH then
+		    mo.tics = player.weapondelay
 		end
 	end
 	
@@ -310,16 +298,27 @@ local function newGunslinger(player)
 	
     //Tailbounce gunning
 	if (player.pflags&PF_BOUNCING) and player.airgun == true and player.weapondelay
-		player.drawangle = mo.angle
-		-- if player.weapondelay < refiretime-1 and player.weapondelay > refiretime-3
-		-- 	B.DrawSVSprite(player,6)
-		-- elseif player.weapondelay < refiretime-4 and player.weapondelay > refiretime-6
-		-- 	B.DrawSVSprite(player,5)
-		-- else
-		if player.weapondelay < refiretime-20 and player.weapondelay > (refiretime)-(refiretime)
-			mo.state = S_PLAY_BOUNCE
+	    if mo.state == S_FANG_BCESHOT_FINISH then
+		    mo.tics = player.weapondelay
 		end
 	end
+	
+	//Drawangle locked during firing states
+	local shotstates = {
+        [S_PLAY_FIRE] = true,
+        [S_PLAY_FIRE_FINISH] = true,
+        [S_FANG_AIRSHOT] = true,
+        [S_FANG_AIRSHOT_FINISH] = true,
+        [S_FANG_BCESHOT] = true,
+        [S_FANG_BCESHOT_FINISH] = true
+    }
+	if player.shotangle then
+        if player.weapondelay and shotstates[mo.state] then
+            player.drawangle = player.shotangle
+	    else
+            player.shotangle = nil
+        end
+    end
 end
 
 B.CustomGunslinger = function(player)
@@ -352,17 +351,10 @@ B.CustomGunslinger = function(player)
 		player.gunheld = 0
 	end
 	
-    //Airgun resets on tailbounce
-	if (player.pflags&PF_BOUNCING)
-		if player.premomz < 0 and player.mo.momz > 0
-			if player.airgun == true
-				player.airgun = false
-			end
-		end
-		player.premomz = player.mo.momz
-	else
-		player.premomz = 0
-	end
+    //Airgun resets on tailbounce landing
+    if player.airgun and player.mo.state == S_PLAY_BOUNCE_LANDING then
+        player.airgun = false
+    end
 	
 	//Do Gunslinger
 	newGunslinger(player)
