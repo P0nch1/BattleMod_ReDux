@@ -72,7 +72,7 @@ B.glide = function(player)
 end
 
 B.pogo = function(player)
-	if not (player and player.mo and player.mo.valid) then return end
+	if not (player and player.mo and player.mo.valid and player.charability == CA_BOUNCE) then return end
 	local mo = player.mo
 	if player.pflags & PF_BOUNCING then
 	    --Handling
